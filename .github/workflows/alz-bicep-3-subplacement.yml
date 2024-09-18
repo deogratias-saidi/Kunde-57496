@@ -44,12 +44,6 @@ jobs:
       id: whatif
       run: |
         $inputObject = @{
-            DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
-            Location              = 'norwayeast'
-            ManagementGroupId     = 'alz'
-            TemplateFile          = "./config/orchestration/subscription/subscriptionPlacement.main.bicep"
-
-            # Pass additional parameters inline
             parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
             parTopLevelManagementGroupPrefix = 'alz'
             parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
@@ -68,7 +62,12 @@ jobs:
 
         try {
           # Run WhatIf
-          New-AzManagementGroupDeployment @inputObject -WhatIf
+          New-AzManagementGroupDeployment `
+          -DeploymentName (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+          -Location 'norwayeast' `
+          -ManagementGroupId 'alz' `
+          -TemplateFile "./config/orchestration/subscription/subscriptionPlacement.main.bicep" `
+          -TemplateParameterObject $inputObject
         }
         catch {
           Write-Error "WhatIf validation failed. Stopping deployment."
@@ -80,12 +79,6 @@ jobs:
       if: ${{ success() }}  # Only run if the WhatIf step succeeded
       run: |
         $inputObject = @{
-            DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
-            Location              = 'norwayeast'
-            ManagementGroupId     = 'alz'
-            TemplateFile          = "./config/orchestration/subscription/subscriptionPlacement.main.bicep"
-
-            # Pass additional parameters inline
             parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
             parTopLevelManagementGroupPrefix = 'alz'
             parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
@@ -103,5 +96,10 @@ jobs:
         }
 
         # Run the actual deployment
-        New-AzManagementGroupDeployment @inputObject
+        New-AzManagementGroupDeployment `
+          -DeploymentName (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+          -Location 'norwayeast' `
+          -ManagementGroupId 'alz' `
+          -TemplateFile "./config/orchestration/subscription/subscriptionPlacement.main.bicep" `
+          -TemplateParameterObject $inputObject
       shell: pwsh
