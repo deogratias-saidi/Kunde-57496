@@ -1,4 +1,4 @@
-name: Azure Bicep Deployment with PowerShell
+name: Deploy Azure Subscription Placement
 
 on:
   workflow_dispatch:

@@ -1,7 +1,7 @@
-name: Azure Bicep Deployment with PowerShell
+name: Deploy Management Group
 
 on:
-  workflow_dispatch:
+  workflow_dispatch
 
 env:
   AZURE_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
@@ -12,43 +12,27 @@ env:
 
 jobs:
   deploy:
-    runs-on: windows-latest  # Use a Windows runner for PowerShell support
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Az PowerShell Module
-      run: |
-        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
-      shell: pwsh
-
     - name: Log in to Azure
-      run: |
-        Connect-AzAccount -ServicePrincipal `
-          -TenantId ${{ secrets.AZURE_TENANT_ID }} `
-          -SubscriptionId ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }} `
-          -ApplicationId ${{ secrets.AZURE_CLIENT_ID }} `
-          -Password ${{ secrets.AZURE_SECRET_ID }}
-      shell: pwsh
+      uses: actions/checkout@v2
+    - name: Log in to Azure
+      run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_SECRET_ID }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
-    - name: Deploy Bicep Template using PowerShell
+    - name: Deploy Bicep Template
       run: |
-        $inputObject = @{
-            DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
-            Location              = 'norwayeast'
-            ManagementGroupId     = 'alz'
-            TemplateFile          = ".\config\orchestration\subscription\subscriptionPlacement.main.bicep"
-            # Pass parameters inline instead of using a parameter file
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
-            parTopLevelManagementGroupPrefix = 'alz'
-            parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
-            parPlatformMgmtAlzDefaultsEnable = $true
-            parLandingZoneMgAlzDefaultsEnable = $true
-            parSandboxMgDefaultsEnable = $true
-            parDecommissionedMgDefaultsEnable = $true
-            parLandingZoneMgConfidentialEnable = $false
-        }
-
-        New-AzManagementGroupDeployment @inputObject
-      shell: pwsh
+        az deployment tenant create \
+          --template-file ./config/orchestration/managementGroup/managementGroup.main.bicep \
+          --location norwayeast \
+          --parameters parCompanyPrefix='${{ secrets.COMPANY_PREFIX }}' \
+                      parTopLevelManagementGroupPrefix='alz' \
+                      parTopLevelManagementGroupDisplayName='alz-${{ secrets.COMPANY_PREFIX }}' \
+                      parPlatformMgmtAlzDefaultsEnable=true \
+                      parLandingZoneMgAlzDefaultsEnable=true \
+                      parSandboxMgDefaultsEnable=true \
+                      parDecommissionedMgDefautsEnable=true \
+                      parLandingZoneMgConfidentialEnable=false
