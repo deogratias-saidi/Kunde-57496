@@ -32,6 +32,7 @@ jobs:
       run: |
         az deployment tenant create \
           --template-file ./config/orchestration/managementGroup/managementGroup.main.bicep \
+          --location norwayeast \
           --parameters parCompanyPrefix='${{ secrets.COMPANY_PREFIX }}' \
                       parTopLevelManagementGroupPrefix='alz' \
                       parTopLevelManagementGroupDisplayName='alz-${{ secrets.COMPANY_PREFIX }}' \
