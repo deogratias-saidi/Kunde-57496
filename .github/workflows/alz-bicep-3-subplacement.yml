@@ -43,31 +43,23 @@ jobs:
     - name: Run WhatIf to Validate the Deployment
       id: whatif
       run: |
-        $inputObject = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
-            parTopLevelManagementGroupPrefix = 'alz'
-            parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
-            parPlatformMgmtAlzDefaultsEnable = $true
-            parLandingZoneMgAlzDefaultsEnable = $true
-            parSandboxMgDefaultsEnable = $true
-            parDecommissionedMgDefaultsEnable = $true
-            parLandingZoneMgConfidentialEnable = $false
-            
-            # Subscription parameters
+        $parametersFile = @{
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'            
             parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
             parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
             parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
             parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
+            parDeploySubscriptions = $true
         }
 
         try {
           # Run WhatIf
           New-AzManagementGroupDeployment `
-          -DeploymentName (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
           -Location 'norwayeast' `
+          -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
           -ManagementGroupId 'alz' `
-          -TemplateFile "./config/orchestration/subscription/subscriptionPlacement.main.bicep" `
-          -TemplateParameterObject $inputObject
+          -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" 
+          -TemplateParameterObject $parametersFile -WhatIf
         }
         catch {
           Write-Error "WhatIf validation failed. Stopping deployment."
@@ -78,28 +70,20 @@ jobs:
     - name: Proceed with Actual Deployment if WhatIf Passes
       if: ${{ success() }}  # Only run if the WhatIf step succeeded
       run: |
-        $inputObject = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
-            parTopLevelManagementGroupPrefix = 'alz'
-            parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
-            parPlatformMgmtAlzDefaultsEnable = $true
-            parLandingZoneMgAlzDefaultsEnable = $true
-            parSandboxMgDefaultsEnable = $true
-            parDecommissionedMgDefaultsEnable = $true
-            parLandingZoneMgConfidentialEnable = $false
-            
-            # Subscription parameters
+        $parametersFile = @{
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'            
             parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
             parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
             parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
             parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
+            parDeploySubscriptions = $true
         }
 
         # Run the actual deployment
         New-AzManagementGroupDeployment `
-          -DeploymentName (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-          -Location 'norwayeast' `
-          -ManagementGroupId 'alz' `
-          -TemplateFile "./config/orchestration/subscription/subscriptionPlacement.main.bicep" `
-          -TemplateParameterObject $inputObject
+        -Location 'norwayeast' `
+        -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+        -ManagementGroupId 'alz' `
+        -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" 
+        -TemplateParameterObject $parametersFile
       shell: pwsh
