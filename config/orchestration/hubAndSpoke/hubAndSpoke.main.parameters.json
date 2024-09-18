@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "parDeployHubAndSpokeFortigate": {
+      "value": true
+    },
+    "parDeployHubAndSpokeAzureFirewall": {
+      "value": false
+    },
+    "parLandingZoneCorpMgmtGroupSubId": {
+      "value": "8ca3f268-a56f-4677-8038-c9a686ce65ce"
+    },
+    "parPlatConnectivityMgmtGroupSubId": {
+      "value": "4516fd20-da97-4ddc-aba6-392b67e99994"
+    },
+    "parPlatManagementMgmtGroupSubId": {
+      "value": "840dddbe-69f2-4fa8-85c0-e0e46e627411"
+    },
+    "adminUsername": {
+      "value": "ecitAdmin"
+    }
+  }
+}

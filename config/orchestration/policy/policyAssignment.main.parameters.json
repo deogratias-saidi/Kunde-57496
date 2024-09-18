@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "parLogAnalyticsWorkspaceSubscription": {
+      "value": "4516fd20-da97-4ddc-aba6-392b67e99994"
+    },
+    "parCompanyPrefix": {
+      "value": "57496"
+    },
+    "parMsDefenderForCloudEmailSecurityContact": {
+      "value": "Djuma@showmino.com"
+    }
+  }
+}

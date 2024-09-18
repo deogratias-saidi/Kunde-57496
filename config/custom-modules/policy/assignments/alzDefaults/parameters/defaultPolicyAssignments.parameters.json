@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "parCompanyPrefix": {
+      "value": "57496"
+    },
+    "parLogAnalyticsWorkSpaceAndAutomationAccountLocation": {
+      "value": "norwayeast"
+    },
+    "parLogAnalyticsWorkspaceResourceId": {
+      "value": "/subscriptions/4516fd20-da97-4ddc-aba6-392b67e99994/resourcegroups/rg-57496-ecms-noe-logging/providers/microsoft.operationalinsights/workspaces/alz-log-analytics"
+    },
+    "parDataCollectionRuleVMInsightsResourceId": {
+      "value": "/subscriptions/4516fd20-da97-4ddc-aba6-392b67e99994/resourceGroups/rg-57496-ecms-noe-logging/providers/Microsoft.Insights/dataCollectionRules/alz-ama-vmi-dcr"
+    },
+    "parDataCollectionRuleChangeTrackingResourceId": {
+      "value": "/subscriptions/4516fd20-da97-4ddc-aba6-392b67e99994/resourceGroups/rg-57496-ecms-noe-logging/providers/Microsoft.Insights/dataCollectionRules/alz-ama-ct-dcr"
+    },
+    "parDataCollectionRuleMDFCSQLResourceId": {
+      "value": "/subscriptions/4516fd20-da97-4ddc-aba6-392b67e99994/resourceGroups/rg-57496-ecms-noe-logging/providers/Microsoft.Insights/dataCollectionRules/alz-ama-mdfcsql-dcr"
+    },
+    "parUserAssignedManagedIdentityResourceId": {
+      "value": "/subscriptions/4516fd20-da97-4ddc-aba6-392b67e99994/resourceGroups/rg-57496-ecms-noe-logging/providers/Microsoft.ManagedIdentity/userAssignedIdentities/alz-logging-mi"
+    },
+    "parUserAssignedManagedIdentityResourceName": {
+      "value": "alz-logging-mi"
+    },
+    "parLogAnalyticsWorkspaceName": {
+      "value": "alz-log-analytics"
+    },
+    "parLogAnalyticsWorkspaceResourceGroupName": {
+      "value": "rg-57496-ecms-noe-logging"
+    },
+    "parLogAnalyticsWorkspaceSubscription": {
+      "value": "4516fd20-da97-4ddc-aba6-392b67e99994"
+    },
+    "parAutomationAccountName": {
+      "value": "alz-automation-account"
+    },
+    "parMsDefenderForCloudEmailSecurityContact": {
+      "value": "deogratias.saidi@ecit.no"
+    }
+  }
+}
