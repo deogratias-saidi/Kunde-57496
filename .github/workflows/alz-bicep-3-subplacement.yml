@@ -1,4 +1,4 @@
-name: Azure Bicep Deployment with PowerShell
+name: Deploy Subscription Placement
 
 on:
   workflow_dispatch:  # This makes the workflow trigger manually
