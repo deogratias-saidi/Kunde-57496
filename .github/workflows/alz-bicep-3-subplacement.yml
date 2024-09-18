@@ -22,6 +22,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Uinstall AzureRm Module
+      run: |
+        Uninstall-Module -Name Az -Force -ErrorAction SilentlyContinue
+      shell: pwsh
+
     - name: Install Az PowerShell Module
       run: |
         Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
