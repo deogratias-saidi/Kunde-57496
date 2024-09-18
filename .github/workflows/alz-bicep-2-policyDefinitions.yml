@@ -1,0 +1,73 @@
+name: Deploy Policy Definitions
+
+on:
+  workflow_dispatch:  # This makes the workflow trigger manually
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to Azure using Azure CLI with Service Principal
+      run: |
+        az login --service-principal \
+          -u ${{ secrets.AZURE_CLIENT_ID }} \
+          -p ${{ secrets.AZURE_SECRET_ID }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+
+    - name: Install Az PowerShell Module
+      run: |
+        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
+      shell: pwsh
+
+    - name: Log in to Azure using PowerShell (via Azure CLI authentication)
+      run: |
+        $azAccessToken = az account get-access-token --query accessToken --output tsv
+        $azTenantId = az account show --query tenantId --output tsv
+        $azSubscriptionId = az account show --query id --output tsv
+        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
+        Set-AzContext -SubscriptionId $azSubscriptionId  
+      shell: pwsh
+
+    - name: Run WhatIf to Validate the Deployment
+      id: whatif
+      run: |
+        $parametersFile = @{
+            parTargetManagementGroupId = 'alz'
+        }
+
+        try {
+          # Run WhatIf
+          New-AzManagementGroupDeployment `
+          -Location 'norwayeast' `
+          -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+          -ManagementGroupId 'alz' `
+          -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
+          -TemplateParameterObject $parametersFile `
+          -WhatIf
+        }
+        catch {
+          Write-Error "WhatIf validation failed. Stopping deployment."
+          exit 1  # Exit with an error code to stop the pipeline if WhatIf fails
+        }
+      shell: pwsh
+
+    - name: Proceed with Actual Deployment if WhatIf Passes
+      if: ${{ success() }}  # Only run if the WhatIf step succeeded
+      run: |
+        $parametersFile = @{
+            parTargetManagementGroupId = 'alz'
+        }
+
+        # Run the actual deployment
+        New-AzManagementGroupDeployment `
+        -Location 'norwayeast' `
+        -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+        -ManagementGroupId 'alz' `
+        -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
+        -TemplateParameterObject $parametersFile
+      shell: pwsh
