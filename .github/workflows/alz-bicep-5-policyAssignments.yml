@@ -27,6 +27,14 @@ jobs:
         Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
       shell: pwsh
 
+    - name: Authenticate PowerShell Session with Azure CLI Token
+      run: |
+        echo "Authenticating PowerShell with Azure CLI token..."
+        $azAccessToken = az account get-access-token --query accessToken --output tsv
+        $azTenantId = az account show --query tenantId --output tsv
+        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId
+      shell: pwsh
+
     - name: Make PowerShell Script Executable
       run: chmod +x ./pipeline-scripts/Deploy-ALZLogging.ps1
 
