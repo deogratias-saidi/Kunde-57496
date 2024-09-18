@@ -23,3 +23,4 @@ module modManagementGroup '../../custom-modules/managementGroup/managementGroup.
     parCompanyPrefix:parCompanyPrefix
   }
 }
+
