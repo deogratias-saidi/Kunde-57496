@@ -3,13 +3,6 @@ name: Deploy Management Group
 on:
   workflow_dispatch
 
-env:
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SECRET_ID }}
-  COMPANY_PREFIX: ${{ secrets.COMPANY_PREFIX }}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest

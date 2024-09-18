@@ -1,10 +1,8 @@
-name: Deploy Subscription Placement
+name: Deploy logging
 
 on:
   workflow_dispatch:  # This makes the workflow trigger manually
 
-env:
-  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -39,12 +37,9 @@ jobs:
       id: whatif
       run: |
         $parametersFile = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'            
-            parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
-            parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
-            parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
+            parLocation = 'norwayeast'
             parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
-            parDeploySubscriptions = $true
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
         }
 
         try {
@@ -53,7 +48,7 @@ jobs:
           -Location 'norwayeast' `
           -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
           -ManagementGroupId 'alz' `
-          -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
+          -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
           -TemplateParameterObject $parametersFile `
           -WhatIf
         }
@@ -67,12 +62,9 @@ jobs:
       if: ${{ success() }}  # Only run if the WhatIf step succeeded
       run: |
         $parametersFile = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'            
-            parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
-            parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
-            parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
+            parLocation = 'norwayeast'
             parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
-            parDeploySubscriptions = $true
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
         }
 
         # Run the actual deployment
@@ -80,6 +72,6 @@ jobs:
         -Location 'norwayeast' `
         -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
         -ManagementGroupId 'alz' `
-        -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
+        -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
         -TemplateParameterObject $parametersFile
       shell: pwsh

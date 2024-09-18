@@ -1,0 +1,122 @@
+name: Deploy Policy Assignments
+
+on:
+  workflow_dispatch:  # This makes the workflow trigger manually
+
+env:
+  COMPANY_PREFIX: "57496"
+  LOCATION: "norwayeast"  # Set your location here
+  LOG_ANALYTICS_WORKSPACE_SUBSCRIPTION: "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
+  USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_NAME: "alz-${{ secrets.COMPANY_PREFIX }}-logging-mi"
+  AUTOMATION_ACCOUNT_NAME: "alz-${{secrets.COMPANY_PREFIX}}-automation-account"
+  MS_DEFENDER_EMAIL_CONTACT: "deogratias.saidi@ecit.no"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to Azure using Azure CLI with Service Principal
+      run: |
+        echo "Logging into Azure..."
+        az login --service-principal \
+          -u ${{ secrets.AZURE_CLIENT_ID }} \
+          -p ${{ secrets.AZURE_SECRET_ID }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+
+    - name: Install Az PowerShell Module
+      run: |
+        echo "Installing Az PowerShell module..."
+        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
+      shell: pwsh
+
+    - name: Set Resource Group Name Based on Location
+      id: set-resource-group
+      run: |
+        echo "Setting resource group name based on location..."
+        if ($env:LOCATION -eq "norwayeast") {
+          $env:RESOURCE_GROUP_SUFFIX = "noe"
+        } elseif ($env:LOCATION -eq "westeurope") {
+          $env:RESOURCE_GROUP_SUFFIX = "weu"
+        } elseif ($env:LOCATION -eq "northeurope") {
+          $env:RESOURCE_GROUP_SUFFIX = "neu"
+        } else {
+          throw "Unsupported location: $env:LOCATION"
+        }
+
+        # Set resource group names dynamically based on the location
+        $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME = "rg-${{ secrets.COMPANY_PREFIX }}-ecms-$env:RESOURCE_GROUP_SUFFIX-logging"
+        $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_ID = "/subscriptions/${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}/resourcegroups/$env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME/providers/microsoft.operationalinsights/workspaces/alz-${{ secrets.COMPANY_PREFIX }}-log-analytics"
+        $env:DATA_COLLECTION_RULE_VM_INSIGHTS_RESOURCE_ID = "/subscriptions/${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}/resourceGroups/$env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME/providers/Microsoft.Insights/dataCollectionRules/alz-${{ secrets.COMPANY_PREFIX }}-ama-vmi-dcr"
+        $env:DATA_COLLECTION_RULE_CHANGE_TRACKING_RESOURCE_ID = "/subscriptions/${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}/resourceGroups/$env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME/providers/Microsoft.Insights/dataCollectionRules/alz-${{ secrets.COMPANY_PREFIX }}-ama-ct-dcr"
+        $env:DATA_COLLECTION_RULE_MDFCSQL_RESOURCE_ID = "/subscriptions/${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}/resourceGroups/$env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME/providers/Microsoft.Insights/dataCollectionRules/alz-${{ secrets.COMPANY_PREFIX }}-ama-mdfcsql-dcr"
+        $env:USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_ID = "/subscriptions/${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}/resourceGroups/$env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME/providers/Microsoft.ManagedIdentity/userAssignedIdentities/alz-${{ secrets.COMPANY_PREFIX }}-logging-mi"
+      shell: pwsh
+
+    - name: Run WhatIf to Validate the Deployment
+      run: |
+        echo "Running WhatIf validation for management group deployment..."
+        $parameters = @{
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
+            parLogAnalyticsWorkSpaceAndAutomationAccountLocation = $env:LOCATION
+            parLogAnalyticsWorkspaceResourceId = $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_ID
+            parDataCollectionRuleVMInsightsResourceId = $env:DATA_COLLECTION_RULE_VM_INSIGHTS_RESOURCE_ID
+            parDataCollectionRuleChangeTrackingResourceId = $env:DATA_COLLECTION_RULE_CHANGE_TRACKING_RESOURCE_ID
+            parDataCollectionRuleMDFCSQLResourceId = $env:DATA_COLLECTION_RULE_MDFCSQL_RESOURCE_ID
+            parUserAssignedManagedIdentityResourceId = $env:USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_ID
+            parUserAssignedManagedIdentityResourceName = $env:USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_NAME
+            parLogAnalyticsWorkspaceName = "alz-${{ secrets.COMPANY_PREFIX }}-log-analytics"
+            parLogAnalyticsWorkspaceResourceGroupName = $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME
+            parLogAnalyticsWorkspaceSubscription = $env:LOG_ANALYTICS_WORKSPACE_SUBSCRIPTION
+            parAutomationAccountName = $env:AUTOMATION_ACCOUNT_NAME
+            parMsDefenderForCloudEmailSecurityContact = $env:MS_DEFENDER_EMAIL_CONTACT
+        }
+
+        try {
+          # Run WhatIf
+          New-AzManagementGroupDeployment `
+            -ManagementGroupId 'alz' `
+            -DeploymentName (-join ('alz-PolicyAssignment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+            -Location $env:LOCATION `
+            -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
+            -TemplateParameterObject $parameters `
+            -WhatIf
+        }
+        catch {
+          Write-Error "WhatIf validation failed. Stopping deployment."
+          exit 1  # Exit with an error code to stop the pipeline if WhatIf fails
+        }
+      shell: pwsh
+
+    - name: Proceed with Actual Deployment if WhatIf Passes
+      if: ${{ success() }}  # Only run if the WhatIf step succeeded
+      run: |
+        echo "WhatIf validation passed, proceeding with actual deployment..."
+        $parameters = @{
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
+            parLogAnalyticsWorkSpaceAndAutomationAccountLocation = $env:LOCATION
+            parLogAnalyticsWorkspaceResourceId = $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_ID
+            parDataCollectionRuleVMInsightsResourceId = $env:DATA_COLLECTION_RULE_VM_INSIGHTS_RESOURCE_ID
+            parDataCollectionRuleChangeTrackingResourceId = $env:DATA_COLLECTION_RULE_CHANGE_TRACKING_RESOURCE_ID
+            parDataCollectionRuleMDFCSQLResourceId = $env:DATA_COLLECTION_RULE_MDFCSQL_RESOURCE_ID
+            parUserAssignedManagedIdentityResourceId = $env:USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_ID
+            parUserAssignedManagedIdentityResourceName = $env:USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_NAME
+            parLogAnalyticsWorkspaceName = "alz-${{ secrets.COMPANY_PREFIX }}-log-analytics"
+            parLogAnalyticsWorkspaceResourceGroupName = $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_GROUP_NAME
+            parLogAnalyticsWorkspaceSubscription = $env:LOG_ANALYTICS_WORKSPACE_SUBSCRIPTION
+            parAutomationAccountName = $env:AUTOMATION_ACCOUNT_NAME
+            parMsDefenderForCloudEmailSecurityContact = $env:MS_DEFENDER_EMAIL_CONTACT
+        }
+
+        # Run the actual deployment
+        New-AzManagementGroupDeployment `
+          -ManagementGroupId 'alz' `
+          -DeploymentName (-join ('alz-PolicyAssignment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+          -Location $env:LOCATION `
+          -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
+          -TemplateParameterObject $parameters
+      shell: pwsh
