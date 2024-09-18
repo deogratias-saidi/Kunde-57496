@@ -36,7 +36,8 @@ jobs:
       run: |
         $azAccessToken = az account get-access-token --query accessToken --output tsv
         $azTenantId = az account show --query tenantId --output tsv
-        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId
+        $azSubscriptionId = az account show --query id --output tsv
+        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
       shell: pwsh
 
     - name: Run WhatIf to Validate the Deployment
