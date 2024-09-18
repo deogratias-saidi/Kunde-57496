@@ -4,11 +4,9 @@ on:
   workflow_dispatch:  # This makes the workflow trigger manually
 
 env:
-  COMPANY_PREFIX: "57496"
-  LOCATION: "norwayeast"  # Set your location here
   LOG_ANALYTICS_WORKSPACE_SUBSCRIPTION: "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
   USER_ASSIGNED_MANAGED_IDENTITY_RESOURCE_NAME: "alz-${{ secrets.COMPANY_PREFIX }}-logging-mi"
-  AUTOMATION_ACCOUNT_NAME: "alz-${{secrets.COMPANY_PREFIX}}-automation-account"
+  AUTOMATION_ACCOUNT_NAME: "alz-${{ secrets.COMPANY_PREFIX }}-automation-account"
   MS_DEFENDER_EMAIL_CONTACT: "deogratias.saidi@ecit.no"
 
 jobs:
@@ -27,6 +25,7 @@ jobs:
           -p ${{ secrets.AZURE_SECRET_ID }} \
           --tenant ${{ secrets.AZURE_TENANT_ID }}
         az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+      shell: bash  # Run Azure CLI commands in bash
 
     - name: Install Az PowerShell Module
       run: |
@@ -38,14 +37,17 @@ jobs:
       id: set-resource-group
       run: |
         echo "Setting resource group name based on location..."
-        if ($env:LOCATION -eq "norwayeast") {
+        $location = "${{ secrets.LOCATION }}"  # Get location from secrets
+
+        # Determine the correct resource group suffix based on the location
+        if ($location -eq "norwayeast") {
           $env:RESOURCE_GROUP_SUFFIX = "noe"
-        } elseif ($env:LOCATION -eq "westeurope") {
+        } elseif ($location -eq "westeurope") {
           $env:RESOURCE_GROUP_SUFFIX = "weu"
-        } elseif ($env:LOCATION -eq "northeurope") {
+        } elseif ($location -eq "northeurope") {
           $env:RESOURCE_GROUP_SUFFIX = "neu"
         } else {
-          throw "Unsupported location: $env:LOCATION"
+          throw "Unsupported location: $location. Only norwayeast, westeurope, and northeurope are allowed."
         }
 
         # Set resource group names dynamically based on the location
@@ -61,7 +63,7 @@ jobs:
       run: |
         echo "Running WhatIf validation for management group deployment..."
         $parameters = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
+            parCompanyPrefix = "${{ secrets.COMPANY_PREFIX }}"
             parLogAnalyticsWorkSpaceAndAutomationAccountLocation = $env:LOCATION
             parLogAnalyticsWorkspaceResourceId = $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_ID
             parDataCollectionRuleVMInsightsResourceId = $env:DATA_COLLECTION_RULE_VM_INSIGHTS_RESOURCE_ID
@@ -82,7 +84,7 @@ jobs:
             -ManagementGroupId 'alz' `
             -DeploymentName (-join ('alz-PolicyAssignment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
             -Location $env:LOCATION `
-            -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
+            -TemplateFile "./config/custom-modules/policy/assignments/alzDefaults/alzDefaultPolicyAssignments.bicep" `
             -TemplateParameterObject $parameters `
             -WhatIf
         }
@@ -97,7 +99,7 @@ jobs:
       run: |
         echo "WhatIf validation passed, proceeding with actual deployment..."
         $parameters = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
+            parCompanyPrefix = "${{ secrets.COMPANY_PREFIX }}"
             parLogAnalyticsWorkSpaceAndAutomationAccountLocation = $env:LOCATION
             parLogAnalyticsWorkspaceResourceId = $env:LOG_ANALYTICS_WORKSPACE_RESOURCE_ID
             parDataCollectionRuleVMInsightsResourceId = $env:DATA_COLLECTION_RULE_VM_INSIGHTS_RESOURCE_ID
@@ -117,6 +119,6 @@ jobs:
           -ManagementGroupId 'alz' `
           -DeploymentName (-join ('alz-PolicyAssignment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
           -Location $env:LOCATION `
-          -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
+          -TemplateFile "./config/custom-modules/policy/assignments/alzDefaults/alzDefaultPolicyAssignments.bicep" `
           -TemplateParameterObject $parameters
       shell: pwsh
