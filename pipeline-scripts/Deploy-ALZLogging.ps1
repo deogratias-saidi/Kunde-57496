@@ -48,6 +48,10 @@ $parameters = @{
     parMsDefenderForCloudEmailSecurityContact = "deogratias.saidi@ecit.no"
 }
 
+if (-not (Test-Path "./config/custom-modules/policy/assignments/alzDefaults/alzDefaultPolicyAssignments.bicep")) {
+    throw "Bicep template file not found at the specified path."
+}
+
 # Actual deployment
 New-AzManagementGroupDeployment `
     -ManagementGroupId 'alz' `

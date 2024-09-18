@@ -27,9 +27,12 @@ jobs:
         Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
       shell: pwsh
 
+    - name: Make PowerShell Script Executable
+      run: chmod +x ./pipeline-scripts/Deploy-ALZLogging.ps1
+
     - name: Run PowerShell Script for Deployment
       run: |
-        # Run the deploy.ps1 script and pass secrets as arguments
+        # Run the Deploy-ALZLogging.ps1 script and pass secrets as arguments
         ./pipeline-scripts/Deploy-ALZLogging.ps1 `
           -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
           -managementSubscriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
