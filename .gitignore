@@ -1,6 +1,3 @@
-# Ignore all .yml and .yaml files
-*.yml
-*.yaml
 # Ignore all .env files
 *.env
 # Ignore the upstream-releases directory

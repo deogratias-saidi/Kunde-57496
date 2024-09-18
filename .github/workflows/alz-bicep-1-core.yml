@@ -1,0 +1,42 @@
+name: Azure Bicep Deployment
+
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on push to the main branch
+  pull_request:  # Trigger deployment on pull request as well
+    branches:
+      - main
+
+env:
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SECRET_ID }}
+  COMPANY_PREFIX: ${{ secrets.COMPANY_PREFIX }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Log in to Azure
+      uses: actions/checkout@v2
+    - name: Log in to Azure
+      run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_SECRET_ID }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Deploy Bicep Template
+      run: |
+        az deployment tenant create \
+          --template-file ./config/orchestration/managementGroup/managementGroup.main.bicep \
+          --parameters parCompanyPrefix='${{ secrets.COMPANY_PREFIX }}' \
+                      parTopLevelManagementGroupPrefix='alz' \
+                      parTopLevelManagementGroupDisplayName='alz-${{ secrets.COMPANY_PREFIX }}' \
+                      parPlatformMgmtAlzDefaultsEnable=true \
+                      parLandingZoneMgAlzDefaultsEnable=true \
+                      parSandboxMgDefaultsEnable=true \
+                      parDecommissionedMgDefautsEnable=true \
+                      parLandingZoneMgConfidentialEnable=false
