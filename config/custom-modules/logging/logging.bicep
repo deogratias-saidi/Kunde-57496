@@ -49,28 +49,26 @@ param parTags object = {
       THIS SHOULD BE IN ALL MODULES FOR THE AZURE RESOURCE
 **************************************************************/
 
+param parCompanyPrefix string
+
 metadata name = 'ALZ Bicep - Logging Module'
 metadata description = 'ALZ Bicep Module used to set up Logging'
 
 @sys.description('Log Analytics Workspace name.')
-param parLogAnalyticsWorkspaceName string = 'alz-log-analytics'
+param parLogAnalyticsWorkspaceName string = 'alz-${parCompanyPrefix}-log-analytics'
 
 @sys.description('Log Analytics region name - Ensure the regions selected is a supported mapping as per: https://docs.microsoft.com/azure/automation/how-to/region-mappings.')
 param parLogAnalyticsWorkspaceLocation string = resourceGroup().location
 
 @sys.description('VM Insights Data Collection Rule name for AMA integration.')
-param parDataCollectionRuleVMInsightsName string = 'alz-ama-vmi-dcr'
-
-
+param parDataCollectionRuleVMInsightsName string = 'alz-${parCompanyPrefix}-ama-vmi-dcr'
 
 @sys.description('Change Tracking Data Collection Rule name for AMA integration.')
-param parDataCollectionRuleChangeTrackingName string = 'alz-ama-ct-dcr'
+param parDataCollectionRuleChangeTrackingName string = 'alz-${parCompanyPrefix}-ama-ct-dcr'
 
 
 @sys.description('MDFC for SQL Data Collection Rule name for AMA integration.')
-param parDataCollectionRuleMDFCSQLName string = 'alz-ama-mdfcsql-dcr'
-
-
+param parDataCollectionRuleMDFCSQLName string = 'alz-${parCompanyPrefix}-ama-mdfcsql-dcr'
 
 @allowed([
   'CapacityReservation'
@@ -112,7 +110,7 @@ param parLogAnalyticsWorkspaceSolutions array = [
 ]
 
 @sys.description('Name of the User Assigned Managed Identity required for authenticating Azure Monitoring Agent to Azure.')
-param parUserAssignedManagedIdentityName string = 'alz-logging-mi'
+param parUserAssignedManagedIdentityName string = 'alz-${parCompanyPrefix}-logging-mi'
 
 @sys.description('User Assigned Managed Identity location.')
 param parUserAssignedManagedIdentityLocation string = resourceGroup().location

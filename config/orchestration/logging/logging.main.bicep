@@ -41,6 +41,7 @@ module modLogging '../../custom-modules/logging/logging.bicep' = {
   name: 'AZL-Logging'
   params: {
     parLandingZoneEnv: 'Management'
+    parCompanyPrefix: parCompanyPrefix
   }
   dependsOn: [
     modResourceGroup
