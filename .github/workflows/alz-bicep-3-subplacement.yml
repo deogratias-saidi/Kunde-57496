@@ -5,9 +5,6 @@ on:
 
 env:
   AZURE_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SECRET_ID }}
   COMPANY_PREFIX: ${{ secrets.COMPANY_PREFIX }}
   LANDING_ZONE_ONLINE_SUBSCRIPTION_ID: ${{ secrets.ONLINE_SUBSCRIPTION_ID }}
   LANDING_ZONE_CORP_SUBSCRIPTION_ID: ${{ secrets.CORP_SUBSCRIPTION_ID }}
@@ -16,29 +13,30 @@ env:
 
 jobs:
   deploy:
-    runs-on: windows-latest  # Use a Windows runner for PowerShell support
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Uinstall AzureRm Module
+    - name: Login to Azure using Azure CLI with Service Principal
       run: |
-        Uninstall-Module -Name Az -Force -ErrorAction SilentlyContinue
-      shell: pwsh
+        az login --service-principal \
+          -u ${{ secrets.AZURE_CLIENT_ID }} \
+          -p ${{ secrets.AZURE_SECRET_ID }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
 
     - name: Install Az PowerShell Module
       run: |
         Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
       shell: pwsh
 
-    - name: Log in to Azure
+    - name: Log in to Azure using PowerShell (via Azure CLI authentication)
       run: |
-        Connect-AzAccount -ServicePrincipal `
-          -TenantId ${{ secrets.AZURE_TENANT_ID }} `
-          -SubscriptionId ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }} `
-          -ApplicationId ${{ secrets.AZURE_CLIENT_ID }} `
-          -Password ${{ secrets.AZURE_SECRET_ID }}
+        $azAccessToken = az account get-access-token --query accessToken --output tsv
+        $azTenantId = az account show --query tenantId --output tsv
+        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId
       shell: pwsh
 
     - name: Run WhatIf to Validate the Deployment
@@ -48,7 +46,7 @@ jobs:
             DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
             Location              = 'norwayeast'
             ManagementGroupId     = 'alz'
-            TemplateFile          = ".\config\orchestration\subscription\subscriptionPlacement.main.bicep"
+            TemplateFile          = "./config/orchestration/subscription/subscriptionPlacement.main.bicep"
 
             # Pass additional parameters inline
             parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
@@ -62,9 +60,9 @@ jobs:
             
             # Subscription parameters
             parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
-            parLandingZoneCorpSubcriptionId = '${{ secrets.LANDING_ZONE_CORP_SUBSCRIPTION_ID }}'
-            parPlatConnectivitySubcriptionId = '${{ secrets.PLAT_CONNECTIVITY_SUBSCRIPTION_ID }}'
-            parPlatManagementSubcriptionId = '${{ secrets.PLAT_MANAGEMENT_SUBSCRIPTION_ID }}'
+            parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
+            parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
+            parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
         }
 
         try {
@@ -84,7 +82,7 @@ jobs:
             DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
             Location              = 'norwayeast'
             ManagementGroupId     = 'alz'
-            TemplateFile          = ".\config\orchestration\subscription\subscriptionPlacement.main.bicep"
+            TemplateFile          = "./config/orchestration/subscription/subscriptionPlacement.main.bicep"
 
             # Pass additional parameters inline
             parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
@@ -98,9 +96,9 @@ jobs:
             
             # Subscription parameters
             parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
-            parLandingZoneCorpSubcriptionId = '${{ secrets.LANDING_ZONE_CORP_SUBSCRIPTION_ID }}'
-            parPlatConnectivitySubcriptionId = '${{ secrets.PLAT_CONNECTIVITY_SUBSCRIPTION_ID }}'
-            parPlatManagementSubcriptionId = '${{ secrets.PLAT_MANAGEMENT_SUBSCRIPTION_ID }}'
+            parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
+            parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
+            parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
         }
 
         # Run the actual deployment
