@@ -9,6 +9,10 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SECRET_ID }}
   COMPANY_PREFIX: ${{ secrets.COMPANY_PREFIX }}
+  LANDING_ZONE_ONLINE_SUBSCRIPTION_ID: ${{ secrets.ONLINE_SUBSCRIPTION_ID }}
+  LANDING_ZONE_CORP_SUBSCRIPTION_ID: ${{ secrets.CORP_SUBSCRIPTION_ID }}
+  PLAT_CONNECTIVITY_SUBSCRIPTION_ID: ${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}
+  PLAT_MANAGEMENT_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
 
 jobs:
   deploy:
@@ -39,7 +43,8 @@ jobs:
             Location              = 'norwayeast'
             ManagementGroupId     = 'alz'
             TemplateFile          = ".\config\orchestration\subscription\subscriptionPlacement.main.bicep"
-            # Pass parameters inline instead of using a parameter file
+
+            # Pass additional parameters inline
             parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
             parTopLevelManagementGroupPrefix = 'alz'
             parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
@@ -48,6 +53,10 @@ jobs:
             parSandboxMgDefaultsEnable = $true
             parDecommissionedMgDefaultsEnable = $true
             parLandingZoneMgConfidentialEnable = $false
+            parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
+            parLandingZoneCorpSubcriptionId = '${{ secrets.LANDING_ZONE_CORP_SUBSCRIPTION_ID }}'
+            parPlatConnectivitySubcriptionId = '${{ secrets.PLAT_CONNECTIVITY_SUBSCRIPTION_ID }}'
+            parPlatManagementSubcriptionId = '${{ secrets.PLAT_MANAGEMENT_SUBSCRIPTION_ID }}'
         }
 
         New-AzManagementGroupDeployment @inputObject
