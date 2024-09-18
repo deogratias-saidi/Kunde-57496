@@ -1,7 +1,7 @@
-name: Deploy Azure Subscription Placement
+name: Azure Bicep Deployment with PowerShell
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # This makes the workflow trigger manually
 
 env:
   AZURE_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
@@ -36,7 +36,8 @@ jobs:
           -Password ${{ secrets.AZURE_SECRET_ID }}
       shell: pwsh
 
-    - name: Deploy Bicep Template using PowerShell
+    - name: Run WhatIf to Validate the Deployment
+      id: whatif
       run: |
         $inputObject = @{
             DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
@@ -53,11 +54,50 @@ jobs:
             parSandboxMgDefaultsEnable = $true
             parDecommissionedMgDefaultsEnable = $true
             parLandingZoneMgConfidentialEnable = $false
+            
+            # Subscription parameters
             parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
             parLandingZoneCorpSubcriptionId = '${{ secrets.LANDING_ZONE_CORP_SUBSCRIPTION_ID }}'
             parPlatConnectivitySubcriptionId = '${{ secrets.PLAT_CONNECTIVITY_SUBSCRIPTION_ID }}'
             parPlatManagementSubcriptionId = '${{ secrets.PLAT_MANAGEMENT_SUBSCRIPTION_ID }}'
         }
 
+        try {
+          # Run WhatIf
+          New-AzManagementGroupDeployment @inputObject -WhatIf
+        }
+        catch {
+          Write-Error "WhatIf validation failed. Stopping deployment."
+          exit 1  # Exit with an error code to stop the pipeline if WhatIf fails
+        }
+      shell: pwsh
+
+    - name: Proceed with Actual Deployment if WhatIf Passes
+      if: ${{ success() }}  # Only run if the WhatIf step succeeded
+      run: |
+        $inputObject = @{
+            DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
+            Location              = 'norwayeast'
+            ManagementGroupId     = 'alz'
+            TemplateFile          = ".\config\orchestration\subscription\subscriptionPlacement.main.bicep"
+
+            # Pass additional parameters inline
+            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
+            parTopLevelManagementGroupPrefix = 'alz'
+            parTopLevelManagementGroupDisplayName = 'alz-${{ secrets.COMPANY_PREFIX }}'
+            parPlatformMgmtAlzDefaultsEnable = $true
+            parLandingZoneMgAlzDefaultsEnable = $true
+            parSandboxMgDefaultsEnable = $true
+            parDecommissionedMgDefaultsEnable = $true
+            parLandingZoneMgConfidentialEnable = $false
+            
+            # Subscription parameters
+            parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
+            parLandingZoneCorpSubcriptionId = '${{ secrets.LANDING_ZONE_CORP_SUBSCRIPTION_ID }}'
+            parPlatConnectivitySubcriptionId = '${{ secrets.PLAT_CONNECTIVITY_SUBSCRIPTION_ID }}'
+            parPlatManagementSubcriptionId = '${{ secrets.PLAT_MANAGEMENT_SUBSCRIPTION_ID }}'
+        }
+
+        # Run the actual deployment
         New-AzManagementGroupDeployment @inputObject
       shell: pwsh
