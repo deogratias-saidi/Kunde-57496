@@ -119,7 +119,7 @@ param parUserAssignedManagedIdentityLocation string = resourceGroup().location
 param parLogAnalyticsWorkspaceLinkAutomationAccount bool = true
 
 @sys.description('Automation account name.')
-param parAutomationAccountName string = 'alz-automation-account'
+param parAutomationAccountName string = 'alz-${parCompanyPrefix}-automation-account'
 @sys.description('Automation Account region name. - Ensure the regions selected is a supported mapping as per: https://docs.microsoft.com/azure/automation/how-to/region-mappings.')
 param parAutomationAccountLocation string = resourceGroup().location
 

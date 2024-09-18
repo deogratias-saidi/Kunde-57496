@@ -19,11 +19,6 @@ jobs:
           --tenant ${{ secrets.AZURE_TENANT_ID }}
         az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
 
-    - name: Install Az PowerShell Module
-      run: |
-        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
-      shell: pwsh
-
     - name: Log in to Azure using PowerShell (via Azure CLI authentication)
       run: |
         $azAccessToken = az account get-access-token --query accessToken --output tsv
