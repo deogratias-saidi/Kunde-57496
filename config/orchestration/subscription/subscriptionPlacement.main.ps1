@@ -38,5 +38,7 @@ New-AzManagementGroupDeployment `
   -Location 'norwayeast' `
   -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
   -ManagementGroupId 'alz' `
-  -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" -TemplateParameterObject $parametersFile -WhatIf
+  -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
+  -TemplateParameterObject $parametersFile `
+  -WhatIf
 

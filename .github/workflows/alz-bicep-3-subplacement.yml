@@ -58,8 +58,9 @@ jobs:
           -Location 'norwayeast' `
           -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
           -ManagementGroupId 'alz' `
-          -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" 
-          -TemplateParameterObject $parametersFile -WhatIf
+          -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
+          -TemplateParameterObject $parametersFile `
+          -WhatIf
         }
         catch {
           Write-Error "WhatIf validation failed. Stopping deployment."
@@ -84,6 +85,6 @@ jobs:
         -Location 'norwayeast' `
         -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
         -ManagementGroupId 'alz' `
-        -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" 
+        -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
         -TemplateParameterObject $parametersFile
       shell: pwsh
