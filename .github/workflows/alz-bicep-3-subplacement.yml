@@ -4,12 +4,11 @@ on:
   workflow_dispatch:  # This makes the workflow trigger manually
 
 env:
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
   COMPANY_PREFIX: ${{ secrets.COMPANY_PREFIX }}
-  LANDING_ZONE_ONLINE_SUBSCRIPTION_ID: ${{ secrets.ONLINE_SUBSCRIPTION_ID }}
-  LANDING_ZONE_CORP_SUBSCRIPTION_ID: ${{ secrets.CORP_SUBSCRIPTION_ID }}
-  PLAT_CONNECTIVITY_SUBSCRIPTION_ID: ${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}
-  PLAT_MANAGEMENT_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+  ONLINE_SUBSCRIPTION_ID: ${{ secrets.ONLINE_SUBSCRIPTION_ID }}
+  CORP_SUBSCRIPTION_ID: ${{ secrets.CORP_SUBSCRIPTION_ID }}
+  CONNECTIVITY_SUBSCRIPTION_ID: ${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}
+  MANAGEMENT_SUBSCRIPTION_ID: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
 
 jobs:
   deploy:
@@ -38,6 +37,7 @@ jobs:
         $azTenantId = az account show --query tenantId --output tsv
         $azSubscriptionId = az account show --query id --output tsv
         Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
+        Set-AzContext -SubscriptionId $azSubscriptionId  
       shell: pwsh
 
     - name: Run WhatIf to Validate the Deployment
