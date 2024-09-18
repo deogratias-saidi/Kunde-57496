@@ -59,7 +59,7 @@ jobs:
             parLandingZoneMgConfidentialEnable = $false
             
             # Subscription parameters
-            parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
+            parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
             parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
             parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
             parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
@@ -95,7 +95,7 @@ jobs:
             parLandingZoneMgConfidentialEnable = $false
             
             # Subscription parameters
-            parLandingZoneOnlineSubcriptionId = '${{ secrets.LANDING_ZONE_ONLINE_SUBSCRIPTION_ID }}'
+            parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
             parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
             parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
             parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
