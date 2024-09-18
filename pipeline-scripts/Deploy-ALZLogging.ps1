@@ -53,5 +53,5 @@ New-AzManagementGroupDeployment `
     -ManagementGroupId 'alz' `
     -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
     -Location $location `
-    -TemplateFile "./path/to/your/template.bicep" `
+    -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
     -TemplateParameterObject $parameters
