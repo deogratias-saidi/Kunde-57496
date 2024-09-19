@@ -3,7 +3,6 @@ name: 'Bicep WhatIf / Deploy'
 on:
   workflow_dispatch:
 
-
 jobs:
   bicep-whatif:
     name: 'Bicep WhatIf'
@@ -20,6 +19,27 @@ jobs:
       with:
         creds: ${{secrets.AZURE_CREDENTIALS}}
         enable-AzPSSession: true 
+
+    # Check if the management groups exist
+    - name: Check Management Groups
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $platformConnectivityGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-connectivity"
+          $landingZoneCorpGroup = "alz-${{ secrets.COMPANY_PREFIX }}-landingzones-corp"
+          
+          $platformGroupExists = Get-AzManagementGroup -GroupName $platformConnectivityGroup -ErrorAction SilentlyContinue
+          $corpGroupExists = Get-AzManagementGroup -GroupName $landingZoneCorpGroup -ErrorAction SilentlyContinue
+          
+          if (-not $platformGroupExists) {
+            throw "Management group '$platformConnectivityGroup' does not exist"
+          }
+          
+          if (-not $corpGroupExists) {
+            throw "Management group '$landingZoneCorpGroup' does not exist"
+          }
+
+        azPSVersion: "latest"
 
     # Accept Fortigate EULA
     - name: Accept Fortigate EULA
@@ -52,6 +72,7 @@ jobs:
 
   bicep-deploy:
     name: 'Bicep Deploy'
+    environment: prod
     runs-on: ubuntu-latest
     needs: [bicep-whatif]
     if: github.ref == 'refs/heads/main' # Only runs on main branch
