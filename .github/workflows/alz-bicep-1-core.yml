@@ -31,13 +31,17 @@ jobs:
             -parTopLevelManagementGroupDisplayName "alz-${{ secrets.COMPANY_PREFIX }}" `
             -location "${{ secrets.LOCATION }}" `
             -WhatIf
-          echo "::set-output name=whatif-output::$WhatIfOutput"
+          echo "$WhatIfOutput" > whatif_management_groups.txt
         azPSVersion: "latest"
 
-    # Capture WhatIf output for Management Groups
-    - name: Publish WhatIf Output for Management Groups
-      run: echo "${{ steps.whatif-run-management-groups.outputs.whatif-output }}"
+    # Save WhatIf Output to Environment File for Management Groups
+    - name: Save WhatIf Output for Management Groups
+      run: echo "WHATIF_MANAGEMENT_GROUPS=$(cat whatif_management_groups.txt)" >> $GITHUB_ENV
       
+    # Publish WhatIf Output for Management Groups
+    - name: Publish WhatIf Output for Management Groups
+      run: echo "${{ env.WHATIF_MANAGEMENT_GROUPS }}"
+
   bicep-deploy-management-groups:
     name: 'Bicep Deploy Management Groups'
     environment: prod
@@ -71,8 +75,8 @@ jobs:
         
   bicep-whatif-policyDefinitions:
     name: 'Bicep WhatIf for Policy Definitions'
-    needs: [bicep-deploy-management-groups]
     runs-on: ubuntu-latest
+    needs: [bicep-deploy-management-groups]
     if: github.ref == 'refs/heads/main' # Only runs on main branch
 
     steps:
@@ -97,18 +101,22 @@ jobs:
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -location "${{ secrets.LOCATION }}" `
             -WhatIf
-          echo "::set-output name=whatif-output::$WhatIfOutput"
+          echo "$WhatIfOutput" > whatif_policy_definitions.txt
         azPSVersion: "latest"
 
-    # Capture WhatIf output for Policy Definitions
+    # Save WhatIf Output to Environment File for Policy Definitions
+    - name: Save WhatIf Output for Policy Definitions
+      run: echo "WHATIF_POLICY_DEFINITIONS=$(cat whatif_policy_definitions.txt)" >> $GITHUB_ENV
+
+    # Publish WhatIf Output for Policy Definitions
     - name: Publish WhatIf Output for Policy Definitions
-      run: echo "${{ steps.whatif-run-policy-definitions.outputs.whatif-output }}"
+      run: echo "${{ env.WHATIF_POLICY_DEFINITIONS }}"
 
   bicep-deploy-policyDefinitions:
     name: 'Bicep Deploy Policy Definitions'
     environment: prod
-    runs-on: ubuntu-latest
     needs: [bicep-whatif-policyDefinitions]
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Only runs on main branch
 
     steps:
