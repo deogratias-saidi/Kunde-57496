@@ -32,6 +32,8 @@ New-AzManagementGroupDeployment `
     -TemplateParameterObject $parameters
  #>
 
+ Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
+ 
  param (
   [string]$companyPrefix,
   [string]$platConnectivitySubcriptionId,
@@ -42,7 +44,6 @@ New-AzManagementGroupDeployment `
   [switch]$WhatIf  # New switch for WhatIf
 )
 
-$secureAdminPassword = ConvertTo-SecureString $adminPassword -AsPlainText -Force
 
 # Parameters for deployment
 $parameters = @{
@@ -51,7 +52,7 @@ $parameters = @{
   parLandingZoneCorpSubcriptionId = $LandingZoneCorpSubcriptionId
   parLocation = $location
   adminUsername = $adminUsername
-  adminPassword = $secureAdminPassword
+  adminPassword = $adminPassword
 }
 
 # Ensure Bicep template exists
