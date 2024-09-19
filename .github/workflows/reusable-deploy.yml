@@ -38,7 +38,7 @@ jobs:
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
     # Run WhatIf PowerShell script for Management Groups
@@ -81,7 +81,7 @@ jobs:
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
     # Run PowerShell script for actual Management Groups deployment
@@ -113,7 +113,7 @@ jobs:
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
     # Run WhatIf PowerShell script for Policy Definitions
@@ -155,7 +155,7 @@ jobs:
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
     # Run PowerShell script for actual Policy Definitions deployment
