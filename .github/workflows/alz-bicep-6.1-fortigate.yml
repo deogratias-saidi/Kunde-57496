@@ -31,7 +31,7 @@ jobs:
       with:
         inlineScript: |
           # Run the WhatIf deployment
-          .\pipeline-scripts\Deploy-ALZHubAndSpokeFortigate.ps1 `
+          ./pipeline-scripts/Deploy-ALZHubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
             -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
@@ -61,7 +61,7 @@ jobs:
       with:
         inlineScript: |
           # Run the actual deployment script
-          .\pipeline-scripts\Deploy-ALZHubAndSpokeFortigate.ps1 `
+          ./pipeline-scripts/Deploy-ALZHubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
             -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
