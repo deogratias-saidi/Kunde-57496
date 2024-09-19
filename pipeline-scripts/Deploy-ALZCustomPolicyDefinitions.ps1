@@ -1,29 +1,37 @@
 param (
-  [Parameter()]
-  [String]$Location = "$($env:LOCATION)",
-
-  [Parameter()]
-  [String]$TopLevelMGPrefix = "$($env:TOP_LEVEL_MG_PREFIX)",
-
-  [Parameter()]
-  [String]$TemplateFile = "upstream-releases\$($env:UPSTREAM_RELEASE_VERSION)\infra-as-code\bicep\modules\policy\definitions\customPolicyDefinitions.bicep",
-
-  [Parameter()]
-  [String]$TemplateParameterFile = "config\custom-parameters\customPolicyDefinitions.parameters.all.json",
-
-  [Parameter()]
-  [Boolean]$WhatIfEnabled = [System.Convert]::ToBoolean($($env:IS_PULL_REQUEST))
+  [string]$parTargetManagementGroupId = 'alz',
+  [switch]$WhatIf
 )
 
-# Parameters necessary for deployment
-$inputObject = @{
-  DeploymentName        = -join ('alz-PolicyDefsDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
-  Location              = $Location
-  ManagementGroupId     = $TopLevelMGPrefix
-  TemplateFile          = $TemplateFile
-  TemplateParameterFile = $TemplateParameterFile
-  WhatIf                = $WhatIfEnabled
-  Verbose               = $true
+
+# Parameters for deployment
+$parameters = @{
+  parTargetManagementGroupId = $parTargetManagementGroupId
 }
 
-New-AzManagementGroupDeployment @inputObject
+# Ensure Bicep template exists
+if (-not (Test-Path ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep")) {
+  throw "Bicep template file not found at the specified path."
+}
+
+# Run WhatIf if the switch is passed
+if ($WhatIf) {
+  Write-Output "Running WhatIf for the deployment..."
+  New-AzManagementGroupDeployment `
+    -ManagementGroupId 'alz' `
+    -DeploymentName ("alz-CustomPolicyDefinitions-WhatIf{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+    -Location $location `
+    -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
+    -TemplateParameterObject $parameters `
+    -WhatIf
+} 
+else {
+  # Run the actual deployment
+  Write-Output "Proceeding with the actual deployment..."
+  New-AzManagementGroupDeployment `
+    -ManagementGroupId 'alz' `
+    -DeploymentName ("alz-CustomPolicyDefinitions-WhatIf{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+    -Location $location `
+    -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
+    -TemplateParameterObject $parameters
+}

@@ -1,11 +1,11 @@
-name: Deploy Management Groups
+name: Deploy Management Groups and Policy Definitions
 
 on:
   workflow_dispatch:
 
 
 jobs:
-  bicep-whatif:
+  bicep-whatif-management-groups:
     name: 'Bicep WhatIf'
     runs-on: ubuntu-latest
 
@@ -39,10 +39,10 @@ jobs:
       run: |
         echo "WhatIf complete"
 
-  bicep-deploy:
-    name: 'Bicep Deploy'
+  bicep-deploy-management-groups:
+    name: 'Bicep Deploy Management Groups'
     runs-on: ubuntu-latest
-    needs: [bicep-whatif]
+    needs: [bicep-whatif-management-groups]
     if: github.ref == 'refs/heads/main' # Only runs on main branch
 
     steps:
@@ -67,3 +67,64 @@ jobs:
             -parTopLevelManagementGroupDisplayName "alz-${{ secrets.COMPANY_PREFIX }}" `
             -location "${{ secrets.LOCATION }}"
         azPSVersion: "latest"
+
+        
+  bicep-whatif-policyDefinitions:
+    name: 'Bicep Deploy Policy Definitions'
+    runs-on: ubuntu-latest
+    needs: [bicep-deploy-management-groups]
+    if: github.ref == 'refs/heads/main' # Only runs on main branch
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true
+          
+    - name: Run Policy Definitions Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}"
+            -WhatIf
+        azPSVersion: "latest"
+
+    - name: Capture WhatIf Output
+      id: whatif-output
+      run: |
+        echo "WhatIf complete"
+
+  bicep-deploy-policyDefinitions:
+
+    name: 'Bicep Deploy Policy Definitions'
+    runs-on: ubuntu-latest
+    needs: [bicep-whatif-policyDefinitions]
+    if: github.ref == 'refs/heads/main' # Only runs on main branch
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true
+
+    - name: Run Policy Definitions Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}"
+        azPSVersion: "latest"
+          
