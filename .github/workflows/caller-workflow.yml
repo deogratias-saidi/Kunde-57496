@@ -1,0 +1,13 @@
+name: Trigger Reusable Workflow
+
+on:
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  call-reusable-workflow:
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      deployManagementGroups: true
+      deployPolicyDefinitions: true
+      whatIf: true
+      environment: prod  # Specifying the environment as 'prod'

@@ -1,0 +1,147 @@
+name: Reusable WhatIf and Deploy Workflow
+
+on:
+  workflow_call:
+    inputs:
+      deployManagementGroups:
+        description: 'Run deployment for management groups'
+        required: true
+        type: boolean
+      deployPolicyDefinitions:
+        description: 'Run deployment for policy definitions'
+        required: true
+        type: boolean
+      whatIf:
+        description: 'Run WhatIf before deployment'
+        required: true
+        type: boolean
+      environment:
+        description: 'The environment where the workflow will be deployed'
+        required: true
+        type: string
+
+jobs:
+  management-groups-whatif:
+    if: ${{ inputs.whatIf == 'true' && inputs.deployManagementGroups == 'true' }}
+    name: 'WhatIf Management Groups'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Use the secret directly from the reusable workflow
+          enable-AzPSSession: true
+
+      # Hardcoded values for companyPrefix, location, and managementGroupDisplayName
+      - name: Run WhatIf for Management Groups
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZManagementGroups.ps1 `
+              -companyPrefix ${{secrets.COMPANY_PREFIX}} `
+              -parTopLevelManagementGroupDisplayName "alz-${{secrets.COMPANY_PREFIX}}" `
+              -location ${{secrets.LOCATION}} `
+              -WhatIf
+            echo "$WhatIfOutput" > whatif_management_groups.txt
+          azPSVersion: "latest"
+
+      - name: Save WhatIf Output for Management Groups
+        run: echo "WHATIF_MANAGEMENT_GROUPS=$(cat whatif_management_groups.txt)" >> $GITHUB_ENV
+
+      - name: Publish WhatIf Output for Management Groups
+        run: echo "${{ env.WHATIF_MANAGEMENT_GROUPS }}"
+
+  management-groups-deploy:
+    if: ${{ inputs.deployManagementGroups == 'true' }}
+    name: 'Deploy Management Groups'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    needs: [management-groups-whatif]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Use the secret directly from the reusable workflow
+          enable-AzPSSession: true
+
+      # Hardcoded values for companyPrefix, location, and managementGroupDisplayName
+      - name: Deploy Management Groups
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            ./pipeline-scripts/Deploy-ALZManagementGroups.ps1 `
+              -companyPrefix ${{secrets.COMPANY_PREFIX}} `
+              -parTopLevelManagementGroupDisplayName "alz-${{secrets.COMPANY_PREFIX}}" `
+              -location ${{secrets.LOCATION}}
+          azPSVersion: "latest"
+
+  policy-definitions-whatif:
+    if: ${{ inputs.whatIf == 'true' && inputs.deployPolicyDefinitions == 'true' }}
+    name: 'WhatIf Policy Definitions'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    needs: [management-groups-deploy]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Use the secret directly from the reusable workflow
+          enable-AzPSSession: true
+
+      # Hardcoded values for companyPrefix and location
+      - name: Run WhatIf for Policy Definitions
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+              -companyPrefix ${{secrets.COMPANY_PREFIX}} `
+              -location ${{secrets.LOCATION}} `
+              -WhatIf
+            echo "$WhatIfOutput" > whatif_policy_definitions.txt
+          azPSVersion: "latest"
+
+      - name: Save WhatIf Output for Policy Definitions
+        run: echo "WHATIF_POLICY_DEFINITIONS=$(cat whatif_policy_definitions.txt)" >> $GITHUB_ENV
+
+      - name: Publish WhatIf Output for Policy Definitions
+        run: echo "${{ env.WHATIF_POLICY_DEFINITIONS }}"
+
+  policy-definitions-deploy:
+    if: ${{ inputs.deployPolicyDefinitions == 'true' }}
+    name: 'Deploy Policy Definitions'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    needs: [policy-definitions-whatif]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Use the secret directly from the reusable workflow
+          enable-AzPSSession: true
+
+      # Hardcoded values for companyPrefix and location
+      - name: Deploy Policy Definitions
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+              -companyPrefix ${{secrets.COMPANY_PREFIX}} `
+              -location ${{secrets.LOCATION}}
+          azPSVersion: "latest"
