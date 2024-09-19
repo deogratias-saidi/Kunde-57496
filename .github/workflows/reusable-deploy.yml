@@ -36,8 +36,10 @@ jobs:
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
-        creds: ${{secrets.AZURE_CREDENTIALS}}
-        enable-AzPSSession: true 
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
 
     # Run WhatIf PowerShell script for Management Groups
     - name: Run WhatIf for Management Groups Deployment
@@ -77,8 +79,10 @@ jobs:
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
-        creds: ${{secrets.AZURE_CREDENTIALS}}
-        enable-AzPSSession: true
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
 
     # Run PowerShell script for actual Management Groups deployment
     - name: Run Management Groups Deployment
@@ -107,8 +111,10 @@ jobs:
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
-        creds: ${{secrets.AZURE_CREDENTIALS}}
-        enable-AzPSSession: true
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
 
     # Run WhatIf PowerShell script for Policy Definitions
     - name: Run WhatIf for Policy Definitions Deployment
@@ -147,8 +153,10 @@ jobs:
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
-        creds: ${{secrets.AZURE_CREDENTIALS}}
-        enable-AzPSSession: true
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
 
     # Run PowerShell script for actual Policy Definitions deployment
     - name: Run Policy Definitions Deployment
