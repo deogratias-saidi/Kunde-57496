@@ -71,8 +71,9 @@ jobs:
 
   bicep-deploy:
     name: 'Bicep Deploy'
-    runs-on: ubuntu-latest
+    environment: prod
     needs: [bicep-whatif]
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Only runs on main branch
 
     steps:
