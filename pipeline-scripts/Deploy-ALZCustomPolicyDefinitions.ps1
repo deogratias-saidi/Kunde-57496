@@ -1,5 +1,6 @@
 param (
   [string]$parTargetManagementGroupId = 'alz',
+  [string]$location,
   [switch]$WhatIf
 )
 
