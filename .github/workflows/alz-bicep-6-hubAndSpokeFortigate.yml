@@ -21,6 +21,18 @@ jobs:
         creds: ${{secrets.AZURE_CREDENTIALS}}
         enable-AzPSSession: true 
 
+    - name: Check if Connectivity and Corp Management groups exist
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $connectivityMg = Get-AzManagementGroup -GroupName "alz-${{ secrets.COMPANY_PREFIX }}-connectivity"
+          $corpMg = Get-AzManagementGroup -GroupName "alz-${{ secrets.COMPANY_PREFIX }}-corp"
+          if (-not $connectivityMg -or -not $corpMg) {
+            Write-Error "Management groups alz-${{ secrets.COMPANY_PREFIX }}-connectivity and alz-${{ secrets.COMPANY_PREFIX }}-corp do not exist. Please create them first."
+            exit 1
+          }
+        azPSVersion: "latest"
+
     # Accept Fortigate EULA
     - name: Accept Fortigate EULA
       uses: azure/powershell@v1
