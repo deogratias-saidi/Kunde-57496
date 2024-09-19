@@ -1,31 +1,48 @@
 param (
-  [Parameter()]
-  [String]$NonRootParentManagementGroupId = "$($env:NONROOTPARENTMANAGEMENTGROUPID)",
-
-  [Parameter()]
-  [String]$Location = "$($env:LOCATION)",
-
-  [Parameter()]
-  [String]$TemplateFile = ".\config\orchestration\managementGroup\managementGroup.main.bicep",
-
-  [Parameter()]
-  [String]$TemplateParameterFile = ".\config\orchestration\managementGroup\managementGroup.main.parameters.json",
-
-  [Parameter()]
-  [Boolean]$WhatIfEnabled = [System.Convert]::ToBoolean($($env:IS_PULL_REQUEST))
+  [string]$companyPrefix,
+  [string]$parTopLevelManagementGroupPrefix = "alz",
+  [string]$location,
+  [string]$parTopLevelManagementGroupDisplayName,
+  [bool]$parPlatformMgmtAlzDefaultsEnable = "true",
+  [bool]$parLandingZoneMgAlzDefaultsEnable = "true",
+  [bool]$parSandboxMgDefaultsEnable = "true",
+  [bool]$parDecommissionedMgDefautsEnable = "true",
+  [bool]$parLandingZoneMgConfidentialEnable = "false",
+  [switch]$WhatIf
 )
 
-# Parameters necessary for deployment
 
-if ($NonRootParentManagementGroupId -eq '') {
-  $inputObject = @{
-    DeploymentName        = -join ('alz-MGDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
-    Location              = $Location
-    TemplateFile          = $TemplateFile + "managementGroup.main.bicep"
-    TemplateParameterFile = $TemplateParameterFile
-    WhatIf                = $WhatIfEnabled
-    Verbose               = $true
-  }
+# Parameters for deployment
+$parameters = @{
+  parCompanyPrefix = $companyPrefix
+  parTopLevelManagementGroupPrefix = $parTopLevelManagementGroupPrefix
+  parTopLevelManagementGroupDisplayName = $parTopLevelManagementGroupDisplayName
+  parPlatformMgmtAlzDefaultsEnable = $parPlatformMgmtAlzDefaultsEnable
+  parLandingZoneMgAlzDefaultsEnable = $parLandingZoneMgAlzDefaultsEnable
+  parSandboxMgDefaultsEnable = $parSandboxMgDefaultsEnable
+  parDecommissionedMgDefautsEnable = $parDecommissionedMgDefautsEnable
+  parLandingZoneMgConfidentialEnable = $parLandingZoneMgConfidentialEnable
+}
 
-  New-AzTenantDeployment @inputObject
+# Ensure Bicep template exists
+if (-not (Test-Path ".\config\orchestration\managementGroup\managementGroup.main.bicep")) {
+  throw "Bicep template file not found at the specified path."
+}
+
+# Run WhatIf if the switch is passed
+if ($WhatIf) {
+  Write-Output "Running WhatIf for the deployment..."
+  New-AzTenantDeployment `
+    -Location $location `
+    -TemplateFile ".\config\orchestration\managementGroup\managementGroup.main.bicep" `
+    -TemplateParameterObject $parameters `
+    -WhatIf
+} 
+else {
+  # Run the actual deployment
+  Write-Output "Proceeding with the actual deployment..."
+  New-AzTenantDeployment `
+    -Location $location `
+    -TemplateFile ".\config\orchestration\managementGroup\managementGroup.main.bicep" `
+    -TemplateParameterObject $parameters
 }
