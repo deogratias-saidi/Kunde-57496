@@ -1,0 +1,11 @@
+name: Main Deployment Workflow
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-management-groups-policy-definitions.yml

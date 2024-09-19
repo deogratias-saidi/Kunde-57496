@@ -1,0 +1,122 @@
+name: Deploy Management Groups and Policy Definitions
+
+on:
+  workflow_call: # This makes the workflow reusable
+
+jobs:
+  bicep-whatif-management-groups:
+    name: 'Bicep WhatIf for Management Groups'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+
+    - name: Run WhatIf for Management Groups Deployment
+      id: whatif-run-management-groups
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $WhatIfOutput = ./pipeline-scripts/Deploy-ALZManagementGroups.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -parTopLevelManagementGroupDisplayName "alz-${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}" `
+            -WhatIf
+          echo "$WhatIfOutput" > whatif_management_groups.txt
+        azPSVersion: "latest"
+
+    - name: Save WhatIf Output for Management Groups
+      run: echo "WHATIF_MANAGEMENT_GROUPS=$(cat whatif_management_groups.txt)" >> $GITHUB_ENV
+
+    - name: Publish WhatIf Output for Management Groups
+      run: echo "${{ env.WHATIF_MANAGEMENT_GROUPS }}"
+
+  bicep-deploy-management-groups:
+    name: 'Bicep Deploy Management Groups'
+    environment: prod
+    runs-on: ubuntu-latest
+    needs: bicep-whatif-management-groups
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+
+    - name: Run Management Groups Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZManagementGroups.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -parTopLevelManagementGroupDisplayName "alz-${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}"
+        azPSVersion: "latest"
+
+  bicep-whatif-policyDefinitions:
+    name: 'Bicep WhatIf for Policy Definitions'
+    runs-on: ubuntu-latest
+    needs: bicep-deploy-management-groups
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+
+    - name: Run WhatIf for Policy Definitions Deployment
+      id: whatif-run-policy-definitions
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $WhatIfOutput = ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}" `
+            -WhatIf
+          echo "$WhatIfOutput" > whatif_policy_definitions.txt
+        azPSVersion: "latest"
+
+    - name: Save WhatIf Output for Policy Definitions
+      run: echo "WHATIF_POLICY_DEFINITIONS=$(cat whatif_policy_definitions.txt)" >> $GITHUB_ENV
+
+    - name: Publish WhatIf Output for Policy Definitions
+      run: echo "${{ env.WHATIF_POLICY_DEFINITIONS }}"
+
+  bicep-deploy-policyDefinitions:
+    name: 'Bicep Deploy Policy Definitions'
+    environment: prod
+    runs-on: ubuntu-latest
+    needs: bicep-whatif-policyDefinitions
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+
+    - name: Run Policy Definitions Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}"
+        azPSVersion: "latest"
