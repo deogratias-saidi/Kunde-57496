@@ -1,14 +1,15 @@
 name: Deploy Subscription Placement
 
 on:
-  workflow_dispatch:
-    
+  workflow_dispatch:  # Allows the workflow to be triggered manually
+
 jobs:
   deploy-whatif-subscription-placement:
     name: "WhatIf for Subscription Placement"
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repository to the GitHub Actions runner
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -19,6 +20,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
+      # Check if required management groups exist
       - name: Check if Connectivity and Corp Management groups exist
         uses: azure/powershell@v1
         with:
@@ -50,19 +52,19 @@ jobs:
             }
           azPSVersion: "latest"
 
-      # Run WhatIf to Validate the Deployment
+      # Run WhatIf to validate the deployment
       - name: Run WhatIf for Subscription Placement Deployment
         id: whatif-run-subscription-placement
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
-              -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
+              -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
               -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
               -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
               -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
-              -location "${{ secrets.LOCATION }}"
+              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+              -location "${{ secrets.LOCATION }}" `
               -WhatIf
 
             echo "$WhatIfOutput" > whatif_subscription_placement.txt
@@ -76,14 +78,15 @@ jobs:
       - name: Publish WhatIf Output for Subscription Placement
         run: echo "${{ env.WHATIF_SUBSCRIPTION_PLACEMENT }}"
 
-  bicep-deploy-subplacesubscription-placementment:
+  bicep-deploy-subscription-placement:
     name: "Bicep Deploy Subscription Placement"
     environment: prod
     needs: [deploy-whatif-subscription-placement]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Only runs on main branch
+    if: github.ref == 'refs/heads/main'  # Only runs on the main branch
 
     steps:
+      # Checkout the repository to the GitHub Actions runner
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -94,7 +97,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
-      # Proceed with Actual Deployment if WhatIf Passes
+      # Proceed with actual deployment if WhatIf passes
       - name: Run Subscription Placement Deployment
         uses: azure/powershell@v1
         with:
@@ -104,6 +107,6 @@ jobs:
               -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
               -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
               -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
+              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}"
           azPSVersion: "latest"
