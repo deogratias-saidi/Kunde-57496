@@ -20,5 +20,5 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          Get-AzVM -ResourceGroupName "rg-57496-ecms-noe-logging"
+          Get-AzSubscription -SubscriptionId ${{secrets.CONNECTIVITY_SUBSCRIPTION_ID}} | Set-AzContext
         azPSVersion: "latest"
