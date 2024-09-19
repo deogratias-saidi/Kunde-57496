@@ -45,3 +45,4 @@ else {
     -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
     -TemplateParameterObject $parameters
 }
+
