@@ -33,7 +33,7 @@ if ($WhatIf) {
       -Location $location `
       -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
       -TemplateParameterObject $parameters `
-      -what-if $WhatIf
+      -WhatIf $WhatIf
 } else {
   # Run the actual deployment
   Write-Output "Proceeding with the actual deployment..."
