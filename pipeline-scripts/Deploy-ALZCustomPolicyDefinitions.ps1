@@ -31,7 +31,7 @@ else {
   Write-Output "Proceeding with the actual deployment..."
   New-AzManagementGroupDeployment `
     -ManagementGroupId 'alz' `
-    -DeploymentName ("alz-CustomPolicyDefinitions-WhatIf{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+    -DeploymentName ("alz-CustomPolicyDefinitions{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
     -Location $location `
     -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
     -TemplateParameterObject $parameters

@@ -7,6 +7,7 @@ $inputObject = @{
     ManagementGroupId     = 'alz'
     TemplateFile          = "config/custom-modules/policy/definitions/customPolicyDefinitions.bicep"
     TemplateParameterFile = 'config/custom-modules/policy/definitions/parameters/customPolicyDefinitions.parameters.all.json'
+    WhatIf                = $true
   }
   
   New-AzManagementGroupDeployment @inputObject

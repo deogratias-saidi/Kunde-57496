@@ -93,7 +93,7 @@ jobs:
           ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -location "${{ secrets.LOCATION }}"
-            -WhatIf
+            -WhatIf:$True
         azPSVersion: "latest"
 
     - name: Capture WhatIf Output
