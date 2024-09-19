@@ -1,83 +1,81 @@
 name: Deploy Subscription Placement
 
 on:
-  workflow_dispatch:  # This makes the workflow trigger manually
-  
+  workflow_run:
+    workflows: ["Deploy Management Groups and Policy Definitions"] # Name of the first workflow
+    types:
+      - completed # Trigger when the first workflow completes
+
 jobs:
-  deploy:
+  deploy-whatif-subscription-placement:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if the first workflow succeeded
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Login to Azure using Azure CLI with Service Principal
-      run: |
-        az login --service-principal \
-          -u ${{ secrets.AZURE_CLIENT_ID }} \
-          -p ${{ secrets.AZURE_SECRET_ID }} \
-          --tenant ${{ secrets.AZURE_TENANT_ID }}
-        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+      # Authenticate to Az CLI using OIDC
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
 
-    - name: Install Az PowerShell Module
-      run: |
-        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
-      shell: pwsh
+      # Run WhatIf to Validate the Deployment
+      - name: Run WhatIf for Subscription Placement Deployment
+        id: whatif-run-subscription-placement
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
+              -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -landingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
+              -landingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+              -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+              -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
+              -location "${{ secrets.LOCATION }}"
+              -WhatIf
 
-    - name: Log in to Azure using PowerShell (via Azure CLI authentication)
-      run: |
-        $azAccessToken = az account get-access-token --query accessToken --output tsv
-        $azTenantId = az account show --query tenantId --output tsv
-        $azSubscriptionId = az account show --query id --output tsv
-        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
-        Set-AzContext -SubscriptionId $azSubscriptionId  
-      shell: pwsh
+            echo "$WhatIfOutput" > whatif_subscription_placement.txt
+          azPSVersion: "latest"
 
-    - name: Run WhatIf to Validate the Deployment
-      id: whatif
-      run: |
-        $parametersFile = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'            
-            parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
-            parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
-            parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
-            parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
-            parDeploySubscriptions = $true
-        }
+      # Save WhatIf Output to Environment File for Subscription Placement
+      - name: Save WhatIf Output for Subscription Placement
+        run: echo "WHATIF_SUBSCRIPTION_PLACEMENT=$(cat whatif_subscription_placement.txt)" >> $GITHUB_ENV
 
-        try {
-          # Run WhatIf
-          New-AzManagementGroupDeployment `
-          -Location 'norwayeast' `
-          -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-          -ManagementGroupId 'alz' `
-          -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
-          -TemplateParameterObject $parametersFile `
-          -WhatIf
-        }
-        catch {
-          Write-Error "WhatIf validation failed. Stopping deployment."
-          exit 1  # Exit with an error code to stop the pipeline if WhatIf fails
-        }
-      shell: pwsh
+      # Publish WhatIf Output for Subscription Placement
+      - name: Publish WhatIf Output for Subscription Placement
+        run: echo "${{ env.WHATIF_SUBSCRIPTION_PLACEMENT }}"
 
-    - name: Proceed with Actual Deployment if WhatIf Passes
-      if: ${{ success() }}  # Only run if the WhatIf step succeeded
-      run: |
-        $parametersFile = @{
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'            
-            parLandingZoneOnlineSubcriptionId = '${{ secrets.ONLINE_SUBSCRIPTION_ID }}'
-            parLandingZoneCorpSubcriptionId = '${{ secrets.CORP_SUBSCRIPTION_ID }}'
-            parPlatConnectivitySubcriptionId = '${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}'
-            parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
-            parDeploySubscriptions = $true
-        }
+  bicep-deploy-subplacesubscription-placementment:
+    name: "Bicep Deploy Subscription Placement"
+    environment: prod
+    needs: [deploy-whatif-subscription-placement]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only runs on main branch
 
-        # Run the actual deployment
-        New-AzManagementGroupDeployment `
-        -Location 'norwayeast' `
-        -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-        -ManagementGroupId 'alz' `
-        -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
-        -TemplateParameterObject $parametersFile
-      shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Authenticate to Az CLI using OIDC
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      # Proceed with Actual Deployment if WhatIf Passes
+      - name: Run Subscription Placement Deployment
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
+              -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -landingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
+              -landingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+              -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+              -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
+              -location "${{ secrets.LOCATION }}"
+          azPSVersion: "latest"

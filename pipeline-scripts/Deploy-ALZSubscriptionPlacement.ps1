@@ -1,29 +1,42 @@
 param (
-  [Parameter()]
-  [String]$Location = "$($env:LOCATION)",
-
-  [Parameter()]
-  [String]$TopLevelMGPrefix = "$($env:TOP_LEVEL_MG_PREFIX)",
-
-  [Parameter()]
-  [String]$TemplateFile = "upstream-releases\$($env:UPSTREAM_RELEASE_VERSION)\infra-as-code\bicep\orchestration\subPlacementAll\subPlacementAll.bicep",
-
-  [Parameter()]
-  [String]$TemplateParameterFile = "config\custom-parameters\subPlacementAll.parameters.all.json",
-
-  [Parameter()]
-  [Boolean]$WhatIfEnabled = [System.Convert]::ToBoolean($($env:IS_PULL_REQUEST))
+  [string]$parCompanyPrefix,
+  [string]$parPlatConnectivitySubcriptionId,
+  [string]$parPlatManagementSubcriptionId,
+  [string]$parLandingZoneCorpSubcriptionId,
+  [string]$parLandingZoneOnlineSubcriptionId,
+  [bool]$parDeploySubscriptions = $true,
+  [string]$location,
+  [switch]$WhatIf
 )
 
-# Parameters necessary for deployment
-$inputObject = @{
-  DeploymentName        = -join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]
-  Location              = $Location
-  ManagementGroupId     = $TopLevelMGPrefix
-  TemplateFile          = $TemplateFile
-  TemplateParameterFile = $TemplateParameterFile
-  WhatIf                = $WhatIfEnabled
-  Verbose               = $true
+$parametersFile = @{
+  parCompanyPrefix                  = $parCompanyPrefix
+  parPlatConnectivitySubcriptionId  = $parPlatConnectivitySubcriptionId
+  parPlatManagementSubcriptionId    = $parPlatManagementSubcriptionId
+  parLandingZoneCorpSubcriptionId   = $parLandingZoneCorpSubcriptionId
+  parLandingZoneOnlineSubcriptionId = $parLandingZoneOnlineSubcriptionId
+  parDeploySubscriptions            = $parDeploySubscriptions
 }
 
-New-AzManagementGroupDeployment @inputObject
+if($WhatIf){
+  Write-Output "Running WhatIf for the deployment..."
+
+  New-AzManagementGroupDeployment `
+    -Location $location `
+    -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+    -ManagementGroupId 'alz' `
+    -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
+    -TemplateParameterObject $parametersFile `
+    -WhatIf
+} else {
+  Write-Host "Executing actual deployment for Subscription Placement"
+
+
+  New-AzManagementGroupDeployment `
+    -Location $location `
+    -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
+    -ManagementGroupId 'alz' `
+    -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
+    -TemplateParameterObject $parametersFile
+}
+
