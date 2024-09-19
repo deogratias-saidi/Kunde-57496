@@ -1,4 +1,4 @@
-name: Deploy Fortigate Hub and Spoke
+name: Deploy Management Groups
 
 on:
   workflow_dispatch:
