@@ -41,7 +41,7 @@ jobs:
             -adminUsername "${{ secrets.ADMIN_USERNAME }}" `
             -adminPassword "${{ secrets.ADMIN_PASSWORD }}" `
             -location "${{ secrets.LOCATION }}" `
-            -WhatIf:$True
+            -WhatIf
         azPSVersion: "latest"
 
     # Capture WhatIf output (optional)

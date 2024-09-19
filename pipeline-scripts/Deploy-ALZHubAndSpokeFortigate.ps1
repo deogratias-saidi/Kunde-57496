@@ -32,8 +32,8 @@ if ($WhatIf) {
       -DeploymentName ("alz-HubAndSpokeFortigate-WhatIf{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
       -Location $location `
       -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
-      -TemplateParameterObject $parameters 
-      -WhatIf
+      -TemplateParameterObject $parameters `
+      -what-if $WhatIf
 } else {
   # Run the actual deployment
   Write-Output "Proceeding with the actual deployment..."
