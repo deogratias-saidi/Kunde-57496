@@ -21,14 +21,6 @@ jobs:
         creds: ${{secrets.AZURE_CREDENTIALS}}
         enable-AzPSSession: true 
 
-    # Accept Fortigate EULA
-    - name: Accept Fortigate EULA
-      uses: azure/powershell@v1
-      with:
-        inlineScript: |
-          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
-        azPSVersion: "latest"
-
     # Run WhatIf PowerShell script
     - name: Run WhatIf for Hub and Spoke Fortigate
       uses: azure/powershell@v1
