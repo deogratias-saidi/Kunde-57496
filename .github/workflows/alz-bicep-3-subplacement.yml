@@ -2,8 +2,6 @@ name: Deploy Subscription Placement
 
 on:
   workflow_dispatch:  # This makes the workflow trigger manually
-
-env:
   
 jobs:
   deploy:
