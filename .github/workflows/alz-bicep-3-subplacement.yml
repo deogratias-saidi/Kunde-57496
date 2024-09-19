@@ -22,6 +22,37 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
+      - name: Check if Connectivity and Corp Management groups exist
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $platformConnectivityGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-connectivity"
+            $landingZoneCorpGroup = "alz-${{ secrets.COMPANY_PREFIX }}-landingzones-corp"
+            $platformManagementGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-management"
+            $landingZoneOnlineGroup = "alz-${{ secrets.COMPANY_PREFIX }}-landingzones-online"
+
+            $platformConnectivityGroupExists = Get-AzManagementGroup -GroupName $platformConnectivityGroup -ErrorAction SilentlyContinue
+            $landingZoneCorpGroupExists = Get-AzManagementGroup -GroupName $landingZoneCorpGroup -ErrorAction SilentlyContinue
+            $platformManagementGroupExists = Get-AzManagementGroup -GroupName $platformManagementGroup -ErrorAction SilentlyContinue
+            $landingZoneOnlineGroupExists = Get-AzManagementGroup -GroupName $landingZoneOnlineGroup -ErrorAction SilentlyContinue
+
+            if (-not $platformConnectivityGroupExists) {
+              throw "Management group '$platformConnectivityGroup' does not exist"
+            }
+
+            if (-not $landingZoneCorpGroupExists) {
+              throw "Management group '$landingZoneCorpGroup' does not exist"
+            }
+
+            if (-not $platformManagementGroupExists) {
+              throw "Management group '$platformManagementGroup' does not exist"
+            }
+
+            if (-not $landingZoneOnlineGroupExists) {
+              throw "Management group '$landingZoneOnlineGroup' does not exist"
+            }
+          azPSVersion: "latest"
+
       # Run WhatIf to Validate the Deployment
       - name: Run WhatIf for Subscription Placement Deployment
         id: whatif-run-subscription-placement
