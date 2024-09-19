@@ -1,10 +1,10 @@
 name: Deploy Subscription Placement
 
 on:
-  workflow_run:
-    workflows: ["Deploy Management Groups and Policy Definitions"] # Name of the first workflow
-    types:
-      - completed # Trigger when the first workflow completes
+  workflow_dispatch:
+    #workflows: ["Deploy Management Groups and Policy Definitions"] # Name of the first workflow
+    #types:
+     # - completed # Trigger when the first workflow completes
 
 jobs:
   deploy-whatif-subscription-placement:
@@ -61,10 +61,10 @@ jobs:
           inlineScript: |
             ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
               -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-              -landingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
-              -landingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
-              -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-              -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
+              -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
+              -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+              -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
               -location "${{ secrets.LOCATION }}"
               -WhatIf
 
@@ -103,10 +103,10 @@ jobs:
         with:
           inlineScript: |
             ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
-              -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-              -landingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
-              -landingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
-              -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-              -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
+              -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
+              -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+              -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
               -location "${{ secrets.LOCATION }}"
           azPSVersion: "latest"
