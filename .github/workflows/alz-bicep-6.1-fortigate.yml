@@ -1,4 +1,4 @@
-name: Fortigate Hub and Spoke Deployment
+name: Fortigate Hub and Spoke Deployment 2
 
 on:
     workflow_dispatch:  # This makes the workflow trigger manually

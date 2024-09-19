@@ -25,11 +25,18 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          $connectivityMg = Get-AzManagementGroup -GroupName "alz-${{ secrets.COMPANY_PREFIX }}-connectivity"
-          $corpMg = Get-AzManagementGroup -GroupName "alz-${{ secrets.COMPANY_PREFIX }}-corp"
-          if (-not $connectivityMg -or -not $corpMg) {
-            Write-Error "Management groups alz-${{ secrets.COMPANY_PREFIX }}-connectivity and alz-${{ secrets.COMPANY_PREFIX }}-corp do not exist. Please create them first."
-            exit 1
+          $platformConnectivityGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-connectivity"
+          $landingZoneCorpGroup = "alz-${{ secrets.COMPANY_PREFIX }}-landingzones-corp"
+          
+          $platformGroupExists = Get-AzManagementGroup -GroupName $platformConnectivityGroup -ErrorAction SilentlyContinue
+          $corpGroupExists = Get-AzManagementGroup -GroupName $landingZoneCorpGroup -ErrorAction SilentlyContinue
+          
+          if (-not $platformGroupExists) {
+            throw "Management group '$platformConnectivityGroup' does not exist"
+          }
+          
+          if (-not $corpGroupExists) {
+            throw "Management group '$landingZoneCorpGroup' does not exist"
           }
         azPSVersion: "latest"
 
