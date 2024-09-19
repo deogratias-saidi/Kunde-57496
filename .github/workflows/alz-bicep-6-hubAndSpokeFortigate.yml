@@ -36,8 +36,9 @@ jobs:
         Set-AzContext -SubscriptionId $azSubscriptionId  
       shell: pwsh
 
-    - name: Accept End User License Agreement for Fortinet FG-VM
-      run: Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
+    - name: Accept End User License Agreement for Fortinet FortiGate
+      run: |
+        Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
       shell: pwsh
 
     - name: Make PowerShell Script Executable

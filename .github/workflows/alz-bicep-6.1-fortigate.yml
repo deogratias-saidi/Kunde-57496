@@ -1,0 +1,24 @@
+name: Fortigate Hub and Spoke Deployment
+
+on:
+    workflow_dispatch:  # This makes the workflow trigger manually
+
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Login via Az module
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true 
+        
+    - name: Run Azure PowerShell inline script
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          Get-AzVM -ResourceGroupName "rg-57496-ecms-noe-logging"
+        azPSVersion: "latest"
