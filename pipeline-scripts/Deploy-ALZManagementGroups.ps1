@@ -3,11 +3,11 @@ param (
   [string]$parTopLevelManagementGroupPrefix = "alz",
   [string]$location,
   [string]$parTopLevelManagementGroupDisplayName,
-  [bool]$parPlatformMgmtAlzDefaultsEnable = "true",
-  [bool]$parLandingZoneMgAlzDefaultsEnable = "true",
-  [bool]$parSandboxMgDefaultsEnable = "true",
-  [bool]$parDecommissionedMgDefautsEnable = "true",
-  [bool]$parLandingZoneMgConfidentialEnable = "false",
+  [bool]$parPlatformMgmtAlzDefaultsEnable = $true,
+  [bool]$parLandingZoneMgAlzDefaultsEnable = $true,
+  [bool]$parSandboxMgDefaultsEnable = $true,
+  [bool]$parDecommissionedMgDefautsEnable = $true,
+  [bool]$parLandingZoneMgConfidentialEnable = $false,
   [switch]$WhatIf
 )
 
