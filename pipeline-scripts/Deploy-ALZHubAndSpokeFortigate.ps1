@@ -1,40 +1,4 @@
-<# param (
-    [string]$companyPrefix,
-    [string]$connectivitySubscriptionId,
-    [string]$landigZoneCorpSubscriptionId,
-    [string]$location,
-    [string]$adminUsername,
-    [SecureString]$adminPassword
-
-)
-
-
-# Parameters for deployment
-$parameters = @{
-    parCompanyPrefix = $companyPrefix
-    parConnectivitySubscriptionId = $connectivitySubscriptionId
-    parLandigZoneCorpSubscriptionId = $landigZoneCorpSubscriptionId
-    parLocation = $location
-    $adminUsername = $adminUsername
-    $adminPassword = $adminPassword
-}
-
-if (-not (Test-Path ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep")) {
-    throw "Bicep template file not found at the specified path."
-}
-
-# Actual deployment
-New-AzManagementGroupDeployment `
-    -ManagementGroupId 'alz' `
-    -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
-    -Location $location `
-    -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
-    -TemplateParameterObject $parameters
- #>
-
- Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
- 
- param (
+param (
   [string]$companyPrefix,
   [string]$platConnectivitySubcriptionId,
   [string]$LandingZoneCorpSubcriptionId,
