@@ -1,30 +1,79 @@
-param (
-  [Parameter()]
-  [String]$Location = "$($env:LOCATION)",
+<# param (
+    [string]$companyPrefix,
+    [string]$connectivitySubscriptionId,
+    [string]$landigZoneCorpSubscriptionId,
+    [string]$location,
+    [string]$adminUsername,
+    [SecureString]$adminPassword
 
-  [Parameter()]
-  [String]$ConnectivitySubscriptionId = "$($env:CONNECTIVITY_SUBSCRIPTION_ID)",
-
-  [Parameter()]
-  [String]$TemplateFile = "config\orchestration\fortigateHubAndSpoke\fortigateHubAndSpoke.main.bicep",
-
-  [Parameter()]
-  [String]$TemplateParameterFile = "config\custom-parameters\fortigateHubAndSpoke.parameters.all.json",
-
-  [Parameter()]
-  [Boolean]$WhatIfEnabled = [System.Convert]::ToBoolean($($env:IS_PULL_REQUEST))
 )
 
-# Parameters necessary for deployment
-$inputObject = @{
-  DeploymentName        = 'alz-ConnectivityRGDeploy-{0}' -f ( -join (Get-Date -Format 'yyyyMMddTHHMMssffffZ')[0..63])
-  Location              = $Location
-  TemplateFile          = $TemplateFile
-  TemplateParameterFile = $TemplateParameterFile
-  WhatIf                = $WhatIfEnabled
-  Verbose               = $true
+
+# Parameters for deployment
+$parameters = @{
+    parCompanyPrefix = $companyPrefix
+    parConnectivitySubscriptionId = $connectivitySubscriptionId
+    parLandigZoneCorpSubscriptionId = $landigZoneCorpSubscriptionId
+    parLocation = $location
+    $adminUsername = $adminUsername
+    $adminPassword = $adminPassword
 }
 
-Select-AzSubscription -SubscriptionId $ConnectivitySubscriptionId
+if (-not (Test-Path ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep")) {
+    throw "Bicep template file not found at the specified path."
+}
 
-New-AzSubscriptionDeployment @inputObject
+# Actual deployment
+New-AzManagementGroupDeployment `
+    -ManagementGroupId 'alz' `
+    -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+    -Location $location `
+    -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
+    -TemplateParameterObject $parameters
+ #>
+
+ param (
+  [string]$companyPrefix,
+  [string]$connectivitySubscriptionId,
+  [string]$landigZoneCorpSubscriptionId,
+  [string]$location,
+  [string]$adminUsername,
+  [SecureString]$adminPassword,
+  [switch]$WhatIf  # New switch for WhatIf
+)
+
+# Parameters for deployment
+$parameters = @{
+  parCompanyPrefix = $companyPrefix
+  parConnectivitySubscriptionId = $connectivitySubscriptionId
+  parLandigZoneCorpSubscriptionId = $landigZoneCorpSubscriptionId
+  parLocation = $location
+  adminUsername = $adminUsername
+  adminPassword = $adminPassword
+}
+
+# Ensure Bicep template exists
+if (-not (Test-Path ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep")) {
+  throw "Bicep template file not found at the specified path."
+}
+
+# Run WhatIf if the switch is passed
+if ($WhatIf) {
+  Write-Output "Running WhatIf for the deployment..."
+  New-AzManagementGroupDeployment `
+      -ManagementGroupId 'alz' `
+      -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+      -Location $location `
+      -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
+      -TemplateParameterObject $parameters `
+      -WhatIf
+} else {
+  # Run the actual deployment
+  Write-Output "Proceeding with the actual deployment..."
+  New-AzManagementGroupDeployment `
+      -ManagementGroupId 'alz' `
+      -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+      -Location $location `
+      -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
+      -TemplateParameterObject $parameters
+}
