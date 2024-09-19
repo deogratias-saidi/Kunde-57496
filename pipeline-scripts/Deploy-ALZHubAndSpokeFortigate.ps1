@@ -3,7 +3,8 @@ param (
   [string]$platConnectivitySubcriptionId,
   [string]$LandingZoneCorpSubcriptionId,
   [string]$location,
-  [string]$adminUsername ,
+  [string]$adminUsername,
+  [string]$adminPassword,
   [switch]$WhatIf
 )
 
