@@ -45,6 +45,3 @@ else {
     -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
     -TemplateParameterObject $parameters
 }
-catch {
-  Write-Error "Error during deployment: $_"
-}
