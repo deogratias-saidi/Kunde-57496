@@ -22,7 +22,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
+          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
         azPSVersion: "latest"
     
    

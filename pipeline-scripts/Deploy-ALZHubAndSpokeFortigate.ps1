@@ -38,9 +38,11 @@ New-AzManagementGroupDeployment `
   [string]$landigZoneCorpSubscriptionId,
   [string]$location,
   [string]$adminUsername,
-  [SecureString]$adminPassword,
+  [string]$adminPassword,
   [switch]$WhatIf  # New switch for WhatIf
 )
+
+$secureAdminPassword = ConvertTo-SecureString $adminPassword -AsPlainText -Force
 
 # Parameters for deployment
 $parameters = @{
@@ -49,7 +51,7 @@ $parameters = @{
   parLandigZoneCorpSubscriptionId = $landigZoneCorpSubscriptionId
   parLocation = $location
   adminUsername = $adminUsername
-  adminPassword = $adminPassword
+  adminPassword = $secureAdminPassword
 }
 
 # Ensure Bicep template exists
