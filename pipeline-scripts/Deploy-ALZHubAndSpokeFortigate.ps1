@@ -34,8 +34,8 @@ New-AzManagementGroupDeployment `
 
  param (
   [string]$companyPrefix,
-  [string]$connectivitySubscriptionId,
-  [string]$landigZoneCorpSubscriptionId,
+  [string]$platConnectivitySubcriptionId,
+  [string]$LandingZoneCorpSubcriptionId,
   [string]$location,
   [string]$adminUsername,
   [string]$adminPassword,
@@ -47,8 +47,8 @@ $secureAdminPassword = ConvertTo-SecureString $adminPassword -AsPlainText -Force
 # Parameters for deployment
 $parameters = @{
   parCompanyPrefix = $companyPrefix
-  parConnectivitySubscriptionId = $connectivitySubscriptionId
-  parLandigZoneCorpSubscriptionId = $landigZoneCorpSubscriptionId
+  parPlatConnectivitySubcriptionId = $platConnectivitySubcriptionId
+  parLandingZoneCorpSubcriptionId = $LandingZoneCorpSubcriptionId
   parLocation = $location
   adminUsername = $adminUsername
   adminPassword = $secureAdminPassword

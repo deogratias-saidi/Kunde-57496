@@ -22,7 +22,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
+          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
         azPSVersion: "latest"
     
    
@@ -63,8 +63,8 @@ jobs:
           # Run the actual deployment script
           .\pipeline-scripts\Deploy-ALZHubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -landigZoneCorpSubscriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
-            -connectivitySubscriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
             -adminUsername "${{ secrets.ADMIN_USERNAME }}" `
             -adminPassword "${{ secrets.ADMIN_PASSWORD }}" `
             -location "${{ secrets.LOCATION }}"
