@@ -1,4 +1,4 @@
-name: 'Bicep WhatIf / Deploy'
+name: Fortigate Hub and Spoke Deployment
 
 on:
   workflow_dispatch:
