@@ -8,12 +8,12 @@
     "notScopes": [],
     "parameters": {
       "effect": {
-        "value": "Deny"
+        "value": "Audit"
       }
     },
     "policyDefinitionId": "${varTopLevelManagementGroupResourceId}/providers/Microsoft.Authorization/policyDefinitions/Deny-Subnet-Without-Nsg",
     "scope": null,
-    "enforcementMode": "Default"
+    "enforcementMode": "DoNotEnforce"
   },
   "location": null,
   "identity": {

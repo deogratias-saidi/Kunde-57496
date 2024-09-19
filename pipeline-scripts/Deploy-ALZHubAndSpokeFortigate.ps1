@@ -29,7 +29,7 @@ if ($WhatIf) {
   Write-Output "Running WhatIf for the deployment..."
   New-AzManagementGroupDeployment `
       -ManagementGroupId 'alz' `
-      -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+      -DeploymentName ("alz-HubAndSpokeFortigate-WhatIf{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
       -Location $location `
       -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
       -TemplateParameterObject $parameters `
@@ -39,7 +39,7 @@ if ($WhatIf) {
   Write-Output "Proceeding with the actual deployment..."
   New-AzManagementGroupDeployment `
       -ManagementGroupId 'alz' `
-      -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+      -DeploymentName ("alz-HubAndSpokeFortigate-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
       -Location $location `
       -TemplateFile ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep" `
       -TemplateParameterObject $parameters
