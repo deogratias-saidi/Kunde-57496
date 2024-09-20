@@ -1,4 +1,4 @@
-name: Deploy Logging Solution
+name: Deploy Logging Solution Test
 
 on:
   workflow_dispatch: 
