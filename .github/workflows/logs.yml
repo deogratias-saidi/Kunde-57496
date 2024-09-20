@@ -1,11 +1,11 @@
-name: Deploy Subscription Placement
+name: Deploy Logging Solution
 
 on:
   workflow_dispatch: 
 
 jobs:
-  deploy-whatif-subscription-placement:
-    name: "WhatIf for Subscription Placement"
+  deploy-whatif-logging-solution:
+    name: "WhatIf for logging solution"
     runs-on: ubuntu-latest
 
     steps:
@@ -53,17 +53,14 @@ jobs:
           azPSVersion: "latest"
 
       # Run WhatIf to validate the deployment
-      - name: Run WhatIf for Subscription Placement Deployment
+      - name: Run WhatIf for logging solution Deployment
         id: whatif-run-subscription-placement
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
+            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZLoggin.ps1 `
               -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-              -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
-              -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
-              -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+              -parTargetManagementGroupId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}" `
               -WhatIf
 
@@ -78,10 +75,10 @@ jobs:
       - name: Publish WhatIf Output for Subscription Placement
         run: echo "${{ env.WHATIF_SUBSCRIPTION_PLACEMENT }}"
 
-  bicep-deploy-subscription-placement:
-    name: "Bicep Deploy Subscription Placement"
+  bicep-deploy-loggings-solution:
+    name: "Bicep Deploy Logging Solution"
     environment: prod
-    needs: [deploy-whatif-subscription-placement]
+    needs: [deploy-whatif-logging-solution]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'  # Only runs on the main branch
 
@@ -102,11 +99,8 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
+            ./pipeline-scripts/Deploy-ALZLoggin.ps1 `
               -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-              -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
-              -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
-              -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+              -parTargetManagementGroupId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}"
           azPSVersion: "latest"
