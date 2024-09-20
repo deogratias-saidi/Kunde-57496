@@ -58,7 +58,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZLoggin.ps1 `
+            $WhatIfOutput = ./pipeline-scripts/Deploy-ALZLogging.ps1 `
               -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
               -parTargetManagementGroupId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}" `
@@ -99,7 +99,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            ./pipeline-scripts/Deploy-ALZLoggin.ps1 `
+            ./pipeline-scripts/Deploy-ALZLogging.ps1 `
               -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
               -parTargetManagementGroupId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}"
