@@ -61,9 +61,9 @@ if($whatIf){
 
     New-AzManagementGroupDeployment `
     -ManagementGroupId 'alz' `
-    -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+    -DeploymentName ("alz-LoggingDeployment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
     -Location $location `
-    -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
+    -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
     -TemplateParameterObject $parameters
     -WhatIf
 }else {
@@ -72,8 +72,8 @@ if($whatIf){
 
     New-AzManagementGroupDeployment `
     -ManagementGroupId 'alz' `
-    -DeploymentName ("alz-PolicyAssignment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
+    -DeploymentName ("alz-LoggingDeployment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
     -Location $location `
-    -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
+    -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
     -TemplateParameterObject $parameters
 }
