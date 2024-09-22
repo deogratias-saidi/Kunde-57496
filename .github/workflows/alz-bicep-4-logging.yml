@@ -1,77 +1,86 @@
-name: Deploy logging
+name: Loggin and Monitoring Deployment
 
 on:
-  workflow_dispatch:  # This makes the workflow trigger manually
+  workflow_dispatch:
+
 
 jobs:
-  deploy:
+  bicep-whatif:
+    name: 'Bicep WhatIf'
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: Login to Azure using Azure CLI with Service Principal
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true 
+
+    - name: Check if Management Management groups exist
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $platformManagementGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-management"
+          
+          $platformManagementGroupExists = Get-AzManagementGroup -GroupName $platformManagementGroup -ErrorAction SilentlyContinue
+          
+          if (-not $platformManagementGroupExists) {
+            throw "Management group '$platformManagementGroup' does not exist"
+          }
+          
+         
+        azPSVersion: "latest"
+
+    # Run WhatIf PowerShell script
+    - name: Run WhatIf for Hub and Spoke Fortigate
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZLogging.ps1 `
+            -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -parLocation "${{ secrets.LOCATION }}" `
+            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+            -WhatIf
+        azPSVersion: "latest"
+
+    # Capture WhatIf output (optional)
+    - name: Capture WhatIf Output
+      id: whatif-output
       run: |
-        az login --service-principal \
-          -u ${{ secrets.AZURE_CLIENT_ID }} \
-          -p ${{ secrets.AZURE_SECRET_ID }} \
-          --tenant ${{ secrets.AZURE_TENANT_ID }}
-        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+        echo "WhatIf complete"
 
-    - name: Install Az PowerShell Module
-      run: |
-        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
-      shell: pwsh
+  bicep-deploy:
+    name: 'Bicep Deploy'
+    environment: prod
+    needs: [bicep-whatif]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only runs on main branch
 
-    - name: Log in to Azure using PowerShell (via Azure CLI authentication)
-      run: |
-        $azAccessToken = az account get-access-token --query accessToken --output tsv
-        $azTenantId = az account show --query tenantId --output tsv
-        $azSubscriptionId = az account show --query id --output tsv
-        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
-        Set-AzContext -SubscriptionId $azSubscriptionId  
-      shell: pwsh
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: Run WhatIf to Validate the Deployment
-      id: whatif
-      run: |
-        $parametersFile = @{
-            parLocation = 'norwayeast'
-            parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
-        }
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true
 
-        try {
-          # Run WhatIf
-          New-AzManagementGroupDeployment `
-          -Location 'norwayeast' `
-          -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-          -ManagementGroupId 'alz' `
-          -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
-          -TemplateParameterObject $parametersFile `
-          -WhatIf
-        }
-        catch {
-          Write-Error "WhatIf validation failed. Stopping deployment."
-          exit 1  # Exit with an error code to stop the pipeline if WhatIf fails
-        }
-      shell: pwsh
-
-    - name: Proceed with Actual Deployment if WhatIf Passes
-      if: ${{ success() }}  # Only run if the WhatIf step succeeded
-      run: |
-        $parametersFile = @{
-            parLocation = 'norwayeast'
-            parPlatManagementSubcriptionId = '${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}'
-            parCompanyPrefix = '${{ secrets.COMPANY_PREFIX }}'
-        }
-
-        # Run the actual deployment
-        New-AzManagementGroupDeployment `
-        -Location 'norwayeast' `
-        -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-        -ManagementGroupId 'alz' `
-        -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
-        -TemplateParameterObject $parametersFile
-      shell: pwsh
+    # Run PowerShell script for actual deployment
+    - name: Run Fortigate Hub and Spoke Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZLogging.ps1 `
+            -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -parLocation "${{ secrets.LOCATION }}" `
+            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+            -WhatIf
+        azPSVersion: "latest"
