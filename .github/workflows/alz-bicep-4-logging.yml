@@ -41,7 +41,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          ./pipeline-scripts/Deploy-ALZLogging.ps1 `
+          ./pipeline-scripts\Deploy-ALZLogging.ps1 `
             -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -parLocation "${{ secrets.LOCATION }}" `
             -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
@@ -78,7 +78,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          ./pipeline-scripts/Deploy-ALZLogging.ps1 `
+          ./pipeline-scripts\Deploy-ALZLogging.ps1 `
             -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -parLocation "${{ secrets.LOCATION }}" `
             -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
