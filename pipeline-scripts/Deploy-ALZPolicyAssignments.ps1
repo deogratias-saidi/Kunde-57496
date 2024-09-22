@@ -1,6 +1,6 @@
 param (
     [string]$companyPrefix,
-    [string]$parTargetManagementGroupId,
+    [string]$parPlatManagementSubcriptionId,
     [string]$location,
     [switch]$WhatIf
 )
@@ -18,11 +18,11 @@ if ($location -eq "norwayeast") {
 
 # Set resource group names dynamically based on the location
 $logAnalyticsWorkspaceResourceGroupName = "rg-$companyPrefix-ecms-$resourceGroupSuffix-logging"
-$logAnalyticsWorkspaceResourceId = "/subscriptions/$parTargetManagementGroupId/resourcegroups/$logAnalyticsWorkspaceResourceGroupName/providers/microsoft.operationalinsights/workspaces/alz-$companyPrefix-log-analytics"
-$dataCollectionRuleVMInsightsResourceId = "/subscriptions/$parTargetManagementGroupId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/alz-$companyPrefix-ama-vmi-dcr"
-$dataCollectionRuleChangeTrackingResourceId = "/subscriptions/$parTargetManagementGroupId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/alz-$companyPrefix-ama-ct-dcr"
-$dataCollectionRuleMDFCSQLResourceId = "/subscriptions/$parTargetManagementGroupId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/alz-$companyPrefix-ama-mdfcsql-dcr"
-$userAssignedManagedIdentityResourceId = "/subscriptions/$parTargetManagementGroupId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.ManagedIdentity/userAssignedIdentities/alz-$companyPrefix-logging-mi"
+$logAnalyticsWorkspaceResourceId = "/subscriptions/$parPlatManagementSubcriptionId/resourcegroups/$logAnalyticsWorkspaceResourceGroupName/providers/microsoft.operationalinsights/workspaces/alz-$companyPrefix-log-analytics"
+$dataCollectionRuleVMInsightsResourceId = "/subscriptions/$parPlatManagementSubcriptionId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/alz-$companyPrefix-ama-vmi-dcr"
+$dataCollectionRuleChangeTrackingResourceId = "/subscriptions/$parPlatManagementSubcriptionId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/alz-$companyPrefix-ama-ct-dcr"
+$dataCollectionRuleMDFCSQLResourceId = "/subscriptions/$parPlatManagementSubcriptionId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/alz-$companyPrefix-ama-mdfcsql-dcr"
+$userAssignedManagedIdentityResourceId = "/subscriptions/$parPlatManagementSubcriptionId/resourceGroups/$logAnalyticsWorkspaceResourceGroupName/providers/Microsoft.ManagedIdentity/userAssignedIdentities/alz-$companyPrefix-logging-mi"
 
 # Output the resource group names and resource IDs for verification
 Write-Output "Log Analytics Workspace Resource Group Name: $logAnalyticsWorkspaceResourceGroupName"
@@ -34,7 +34,7 @@ Write-Output "User Assigned Managed Identity Resource ID: $userAssignedManagedId
 
 # Parameters for deployment
 $parameters = @{
-    parCompanyPrefix = $parCompanyPrefix
+    parCompanyPrefix = $companyPrefix
     parLogAnalyticsWorkSpaceAndAutomationAccountLocation = $location
     parLogAnalyticsWorkspaceResourceId = $logAnalyticsWorkspaceResourceId
     parDataCollectionRuleVMInsightsResourceId = $dataCollectionRuleVMInsightsResourceId
@@ -44,7 +44,7 @@ $parameters = @{
     parUserAssignedManagedIdentityResourceName = "alz-$companyPrefix-logging-mi"
     parLogAnalyticsWorkspaceName = "alz-$companyPrefix-log-analytics"
     parLogAnalyticsWorkspaceResourceGroupName = $logAnalyticsWorkspaceResourceGroupName
-    parLogAnalyticsWorkspaceSubscription = $parTargetManagementGroupId
+    parPlatManagementSubcriptionId = $parPlatManagementSubcriptionId
     parAutomationAccountName = "alz-$companyPrefix-automation-account"
     parMsDefenderForCloudEmailSecurityContact = "deogratias.saidi@ecit.no"
 }

@@ -1,49 +1,91 @@
 name: Deploy Policy Assignments
 
 on:
-  workflow_dispatch:  # This makes the workflow trigger manually
+  workflow_dispatch:
+
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest  # Use Ubuntu runner for Linux
+  bicep-whatif-for-policy-assignments:
+    name: 'Bicep WhatIf'
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: Login to Azure using Azure CLI with Service Principal
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true 
+
+    - name: Check if Management Management groups exist
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $platformManagementGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-management"
+          $LoggingMonitoringResourceGroup = "alz-${{ secrets.COMPANY_PREFIX }}-ecms-noe-logging"
+
+          $LoggingMonitoringResourceGroupExists = Get-AzResourceGroup -Name $LoggingMonitoringResourceGroup -ErrorAction SilentlyContinue
+          
+          $platformManagementGroupExists = Get-AzManagementGroup -GroupName $platformManagementGroup -ErrorAction SilentlyContinue
+          
+          if (-not $platformManagementGroupExists) {
+            throw "Management group '$platformManagementGroup' does not exist"
+          }
+
+          if (-not $LoggingMonitoringResourceGroupExists) {
+            throw "Resource group '$LoggingMonitoringResourceGroup' does not exist"
+          }
+          
+         
+        azPSVersion: "latest"
+
+    # Run WhatIf PowerShell script
+    - name: Run WhatIf for Policy Assignments Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZPolicyAssignments.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}" `
+            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+            -WhatIf
+        azPSVersion: "latest"
+
+    # Capture WhatIf output (optional)
+    - name: Capture WhatIf Output
+      id: whatif-output
       run: |
-        echo "Logging into Azure..."
-        az login --service-principal \
-          -u ${{ secrets.AZURE_CLIENT_ID }} \
-          -p ${{ secrets.AZURE_SECRET_ID }} \
-          --tenant ${{ secrets.AZURE_TENANT_ID }}
-        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
-      shell: bash  # Use Bash shell for Azure CLI commands
+        echo "WhatIf complete"
 
-    - name: Install Az PowerShell Module
-      run: |
-        echo "Installing Az PowerShell module..."
-        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
-      shell: pwsh
+  bicep-deploy-policy-assignments:
+    name: 'Bicep Deploy Policy Assignments'
+    environment: prod
+    needs: [bicep-whatif-for-policy-assignments]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only runs on main branch
 
-    - name: Log in to Azure using PowerShell (via Azure CLI authentication)
-      run: |
-        $azAccessToken = az account get-access-token --query accessToken --output tsv
-        $azTenantId = az account show --query tenantId --output tsv
-        $azSubscriptionId = az account show --query id --output tsv
-        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
-        Set-AzContext -SubscriptionId $azSubscriptionId  
-      shell: pwsh
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: Make PowerShell Script Executable
-      run: chmod +x ./pipeline-scripts/Deploy-ALZLogging.ps1
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true
 
-    - name: Run PowerShell Script for Deployment
-      run: |
-        # Run the Deploy-ALZLogging.ps1 script and pass secrets as arguments
-        ./pipeline-scripts/Deploy-ALZLogging.ps1 `
+    # Run PowerShell script for actual deployment
+    - name: Run Policy Assignments Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
           -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-          -managementSubscriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
-          -location "${{ secrets.LOCATION }}"
-      shell: pwsh
+            -location "${{ secrets.LOCATION }}" `
+            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+        azPSVersion: "latest"
