@@ -1,7 +1,7 @@
 param (
     [string]$parCompanyPrefix,
     [string]$parPlatManagementSubcriptionId,
-    [string]$location,
+    [string]$parLocation,
     [switch]$WhatIf
 )
 
