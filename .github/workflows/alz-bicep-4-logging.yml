@@ -5,7 +5,7 @@ on:
 
 
 jobs:
-  bicep-whatif:
+  bicep-whatif-for-logging:
     name: 'Bicep WhatIf'
     runs-on: ubuntu-latest
 
@@ -37,7 +37,7 @@ jobs:
         azPSVersion: "latest"
 
     # Run WhatIf PowerShell script
-    - name: Run WhatIf for Hub and Spoke Fortigate
+    - name: Run WhatIf for Logging and Monitoring
       uses: azure/powershell@v1
       with:
         inlineScript: |
@@ -54,10 +54,10 @@ jobs:
       run: |
         echo "WhatIf complete"
 
-  bicep-deploy:
+  bicep-deploy-logging-solution:
     name: 'Bicep Deploy'
     environment: prod
-    needs: [bicep-whatif]
+    needs: [bicep-whatif-for-logging]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Only runs on main branch
 
@@ -74,7 +74,7 @@ jobs:
         enable-AzPSSession: true
 
     # Run PowerShell script for actual deployment
-    - name: Run Fortigate Hub and Spoke Deployment
+    - name: Run Logging and Monitoring Deployment
       uses: azure/powershell@v1
       with:
         inlineScript: |
@@ -82,5 +82,4 @@ jobs:
             -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -parLocation "${{ secrets.LOCATION }}" `
             -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
-            -WhatIf
         azPSVersion: "latest"
