@@ -37,6 +37,8 @@ $hubNva = Get-AzResource -ResourceGroupName "rg-$companyPrefix-$resourceLocation
 
 if ($hubNva) {
   throw "A Fortigate VM fgt-$companyPrefix-$resourceLocationSuffix-hub-nva already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall can be deployed. Deployment canceled."
+} else {
+  Write-Output "No Fortigate VM found in rg-$companyPrefix-$resourceLocationSuffix-hub. Proceeding with the deployment..."
 }
 
 # Run WhatIf if the switch is passed

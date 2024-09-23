@@ -38,7 +38,10 @@ if (-not (Test-Path ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFort
 $hubNva = Get-AzResource -ResourceGroupName "rg-$companyPrefix-$resourceLocationSuffix-hub" -ResourceName "AZFW-$companyPrefix-$resourceLocationSuffix-hub" -ResourceType "Microsoft.Network/azureFirewalls"
 
 if ($hubNva) {
-  throw "An Azure Firewall azfw$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall solution can be deployed. Deployment canceled."
+  throw "An Azure Firewall azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall solution can be deployed. Deployment canceled."
+} else {
+  <# Action when all if and elseif conditions are false #>
+  Write-Output "No Azure Firewall found in rg-$companyPrefix-$resourceLocationSuffix-hub. Proceeding with the deployment..."
 }
 
 # Run WhatIf if the switch is passed
