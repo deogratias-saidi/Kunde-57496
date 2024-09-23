@@ -25,7 +25,7 @@ if ($WhatIf) {
     New-AzManagementGroupDeployment `
         -ManagementGroupId 'alz' `
         -DeploymentName ("alz-Logging-WhatIf{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
-        -Location $parLocation `
+        -Location $location `
         -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
         -TemplateParameterObject $parameters `
         -WhatIf
@@ -35,7 +35,7 @@ else {
     New-AzManagementGroupDeployment `
         -ManagementGroupId 'alz' `
         -DeploymentName ("alz-Logging-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
-        -Location $parLocation `
+        -Location $location `
         -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
         -TemplateParameterObject $parameters
 }
