@@ -52,7 +52,7 @@ try {
 }
 catch {
   # Handle the case where the resource group is not found
-  Write-Output "Resource group rg-$companyPrefix-$resourceLocationSuffix-hub not found. Proceeding with the deployment..."
+  Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn not found. Proceeding with the deployment..."
 }
 
 
