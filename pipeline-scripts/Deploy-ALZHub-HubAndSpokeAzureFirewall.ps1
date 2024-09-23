@@ -35,16 +35,18 @@ if (-not (Test-Path ".\config\orchestration\hubAndSpokeAzureFirewall\hubAndSpoke
 # Check if a firewall already exists
 $hubNva = Get-AzResource -ResourceGroupName "rg-$companyPrefix-$resourceLocationSuffix-hub" -ResourceName "FGT-$companyPrefix-$resourceLocationSuffix-HUB-NVA" -ResourceType "Microsoft.Compute/virtualMachines"
 
-if ($hubNva) {
-  throw "A Fortigate VM fgt-$companyPrefix-$resourceLocationSuffix-hub-nva already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall can be deployed. Deployment canceled."
+# and if the resource group does not exist continue with the deployment
+if (-not (Get-AzResourceGroup -Name "rg-$companyPrefix-$resourceLocationSuffix-hub" -ErrorAction SilentlyContinue)) {
+  Write-Output "Resource group rg-$companyPrefix-$resourceLocationSuffix-hub not found. Proceeding with the deployment..."
+} elseif ($hubNva) {
+  throw "An Azure Firewall FGT-$companyPrefix-$resourceLocationSuffix-HUB-NVA already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall solution can be deployed. Deployment canceled."
 } else {
-  Write-Output "No Fortigate VM found in rg-$companyPrefix-$resourceLocationSuffix-hub. Proceeding with the deployment..."
+  Write-Output "No Azure Firewall found in rg-$companyPrefix-$resourceLocationSuffix-hub. Proceeding with the deployment..."
 }
 
 # Run WhatIf if the switch is passed
 if ($WhatIf) {
   Write-Output "Running WhatIf for the deployment..."
-
 
 
   New-AzManagementGroupDeployment `
