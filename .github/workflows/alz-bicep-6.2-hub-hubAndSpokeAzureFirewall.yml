@@ -25,7 +25,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          $platformConnectivityGroup = "fg-${{ secrets.COMPANY_PREFIX }}-platform-connectivity"
+          $platformConnectivityGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-connectivity"
           $landingZoneCorpGroup = "alz-${{ secrets.COMPANY_PREFIX }}-landingzones-corp"
           
           $platformGroupExists = Get-AzManagementGroup -GroupName $platformConnectivityGroup -ErrorAction SilentlyContinue
@@ -40,13 +40,6 @@ jobs:
           }
         azPSVersion: "latest"
 
-    # Accept Fortigate EULA
-    - name: Accept Fortigate EULA
-      uses: azure/powershell@v1
-      with:
-        inlineScript: |
-          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
-        azPSVersion: "latest"
 
     # Run WhatIf PowerShell script
     - name: Run WhatIf for Hub and Spoke Fortigate
