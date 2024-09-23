@@ -47,7 +47,7 @@ try {
 
   # Check if the FortiGate VM or Azure Firewall exists
   if ($hubNva) {
-      throw "An Azure Firewall azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
+      throw "An Azure Firewall named azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
   } else {
       Write-Output "No Azure Firewall found in rg-$companyPrefix-ecms-$resourceLocationSuffix-hub. Proceeding with the deployment..."
   }
