@@ -33,30 +33,33 @@ if (-not (Test-Path ".\config\orchestration\hubAndSpokeAzureFirewall\hubAndSpoke
 }
 
 try {
-  # Check if the resource group exists
-  Get-AzResourceGroup -Name "rg-$companyPrefix-ecms-$resourceLocationSuffix-conn" -ErrorAction Stop
-  Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn found. Checking for existing firewall..."
+  # Check if the resource group exists, but use -ErrorAction SilentlyContinue to prevent a thrown exception
+  $resourceGroup = Get-AzResourceGroup -Name "rg-$companyPrefix-ecms-$resourceLocationSuffix-conn" -ErrorAction SilentlyContinue
+  
+  if ($resourceGroup) {
+      Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn found. Checking for existing firewall..."
 
-  # Check if the FortiGate VM or Azure Firewall exists
-  $hubNva = Get-AzVM -ResourceGroupName "rg-$companyPrefix-ecms-$resourceLocationSuffix-conn" -Name "fgt-$companyPrefix-$resourceLocationSuffix-hub-nva" -ErrorAction SilentlyContinue
+      # Check if the FortiGate VM or Azure Firewall exists
+      $hubNva = Get-AzVM -ResourceGroupName "rg-$companyPrefix-ecms-$resourceLocationSuffix-conn" -Name "fgt-$companyPrefix-$resourceLocationSuffix-hub-nva" -ErrorAction SilentlyContinue
 
-  # If $hubNva is not null, the firewall exists
-  if ($hubNva) {
-      throw "An Fortigate Firewall fgt-$companyPrefix-$resourceLocationSuffix-hub-nva already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
+      if ($hubNva) {
+          throw "An Azure Firewall fgt-$companyPrefix-$resourceLocationSuffix-hub-nva already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
+      } else {
+          Write-Output "No Azure Firewall found in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Proceeding with the deployment..."
+      }
   } else {
-      Write-Output "No Azure Firewall found in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Proceeding with the deployment..."
+      # If the resource group is not found, handle this scenario
+      Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn not found. Proceeding with the deployment..."
   }
 }
 catch {
-  # Handle the case where the resource group is not found
-  if ($_.Exception.Message -like "*could not be found*") {
-      Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn not found. Proceeding with the deployment..."
-      # You can place your deployment logic here to proceed with the deployment
-  } else {
-      # If it's some other error, re-throw the exception for debugging
-      throw $_
-  }
+  # Re-throw any other unexpected errors for proper debugging
+  throw $_
 }
+
+# Continue with the deployment logic here
+Write-Output "Running the deployment process..."
+
 
 # Continue with the deployment logic here if resource group is found or not
 Write-Output "Running the deployment process..."

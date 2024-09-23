@@ -42,7 +42,7 @@ jobs:
 
 
     # Run WhatIf PowerShell script
-    - name: Run WhatIf for Hub and Spoke Fortigate
+    - name: Run WhatIf for Hub and Spoke Azure Firewall
       uses: azure/powershell@v1
       with:
         inlineScript: |
