@@ -1,8 +1,7 @@
 param (
     [string]$companyPrefix,
     [string]$parPlatManagementSubcriptionId,
-    [string]$location,
-    [switch]$WhatIf
+    [string]$location
 )
 
 # Determine the correct resource group suffix based on the location
@@ -53,10 +52,6 @@ if (-not (Test-Path "./config/custom-modules/policy/assignments/alzDefaults/alzD
     throw "Bicep template file not found at the specified path."
 }
 
-if($whatIf){
-
-    # WhatIf deployment
-
     Write-Output "Run  the WhatIf for deployment.... "
 
     New-AzManagementGroupDeployment `
@@ -65,15 +60,3 @@ if($whatIf){
     -Location $location `
     -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
     -TemplateParameterObject $parameters
-    -WhatIf
-}else {
-    
-    Write-Output "Proceeding with the actual deployment..."
-
-    New-AzManagementGroupDeployment `
-    -ManagementGroupId 'alz' `
-    -DeploymentName ("alz-LoggingDeployment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
-    -Location $location `
-    -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
-    -TemplateParameterObject $parameters
-}
