@@ -85,13 +85,13 @@ param parNextHopIpAddress string = '10.150.0.68'
 param modRouteTableName string = toLower('RT-${parCompanyPrefix}-SPOKE-NVA')
 
 @sys.description('The subscription id for the connectivity subscription.')
-param parPlatConnectivitySubcriptionId string
+param parPlatConnectivitySubscriptionId string
 
 @sys.description('The resource group name for the hub resources.')
 param parHubResourceGroupName string = toLower('RG-${parCompanyPrefix}-ECMS-${parRegion}-CONN')
 
 @sys.description('The subscription id for the corporate subscription.')
-param parLandingZoneCorpSubcriptionId string
+param parLandingZoneCorpSubscriptionId string
 
 @sys.description('The resource group name for the spoke resources.')
 param parSpokeResourceGroupName string = toLower('RG-${parCompanyPrefix}-${parRegion}-ID')
@@ -167,7 +167,7 @@ param parPublicIpName string = toLower('PIP-${parFortigateName}')
 // createa a resource group for hub network
 
 module modHubResourceGroup '../../../resourceGroup/resourceGroup.bicep' = {
-  scope: subscription(parPlatConnectivitySubcriptionId)
+  scope: subscription(parPlatConnectivitySubscriptionId)
   name: 'hubResourceGroup'
   params: {
     parLandingZoneEnv: 'Connectivity'
@@ -178,7 +178,7 @@ module modHubResourceGroup '../../../resourceGroup/resourceGroup.bicep' = {
 
 // createa a resource group for spoke network
 module modSpokeResourceGroup '../../../resourceGroup/resourceGroup.bicep' = {
-  scope: subscription(parLandingZoneCorpSubcriptionId)
+  scope: subscription(parLandingZoneCorpSubscriptionId)
   name: 'spokeResourceGroup'
   params: {
     parLocation: parLocation
@@ -188,7 +188,7 @@ module modSpokeResourceGroup '../../../resourceGroup/resourceGroup.bicep' = {
 }
 
 module modHubVirtualNetwork '../../virtualNetwork/hubVirtualNetwork.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'HubVirtualNetwork'
   params: {
     parLandingZoneEnv: 'Connectivity'
@@ -209,7 +209,7 @@ module modHubVirtualNetwork '../../virtualNetwork/hubVirtualNetwork.bicep' = {
 }
 
 module modSpokeVirtualNetwork '../../virtualNetwork/spokeVirtualNetwork.bicep' = {
-  scope: resourceGroup(parLandingZoneCorpSubcriptionId, parSpokeResourceGroupName)
+  scope: resourceGroup(parLandingZoneCorpSubscriptionId, parSpokeResourceGroupName)
   name: 'SpokeVirtualNetwork'
   params: {
     parLandingZoneEnv: 'Corp'
@@ -226,7 +226,7 @@ module modSpokeVirtualNetwork '../../virtualNetwork/spokeVirtualNetwork.bicep' =
 }
 
 module modNetworkSecurityGroup '../../networkSecurityGroup/networkSecurityGroup.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'networkSecurityGroup'
   params: {
     parLandingZoneEnv: 'Connectivity'
@@ -239,7 +239,7 @@ module modNetworkSecurityGroup '../../networkSecurityGroup/networkSecurityGroup.
 }
 
 module modRouteTable '../../routeTable/routeTable.bicep' = {
-  scope: resourceGroup(parLandingZoneCorpSubcriptionId, parSpokeResourceGroupName)
+  scope: resourceGroup(parLandingZoneCorpSubscriptionId, parSpokeResourceGroupName)
   name: 'modRouteTable'
   params: {
     parRouteTableName: modRouteTableName
@@ -253,7 +253,7 @@ module modRouteTable '../../routeTable/routeTable.bicep' = {
 
 // Module - Hub to Spoke peering.
 module modHubPeeringToSpoke '../../networkPeering/networkPeering.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'hubPeeringToSpoke'
   params: {
     parDestinationVirtualNetworkId: modSpokeVirtualNetwork.outputs.outSpokeVirtualNetworkId
@@ -270,7 +270,7 @@ module modHubPeeringToSpoke '../../networkPeering/networkPeering.bicep' = {
 
 // Module - Spoke to Hub peering.
 module modSpokePeeringToHub '../../networkPeering/networkPeering.bicep' = {
-  scope: resourceGroup(parLandingZoneCorpSubcriptionId, parSpokeResourceGroupName)
+  scope: resourceGroup(parLandingZoneCorpSubscriptionId, parSpokeResourceGroupName)
   name: 'spokePeeringToHub'
   params: {
     parDestinationVirtualNetworkId: modHubVirtualNetwork.outputs.outHubVirtualNetworkId
@@ -287,7 +287,7 @@ module modSpokePeeringToHub '../../networkPeering/networkPeering.bicep' = {
 }
 
 module modPublicIp '../../publicIp/publicIp.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'publicIp'
   params: {
     parLandingZoneEnv: 'Connectivity'
@@ -307,7 +307,7 @@ module modPublicIp '../../publicIp/publicIp.bicep' = {
 }
 
 module modExternalNetorkInterfaceCard '../../networkInterfaceCard/networkInterfaceCard.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'networkInterfaceCard'
   params: {
     parLandingZoneEnv: 'Connectivity'
@@ -324,7 +324,7 @@ module modExternalNetorkInterfaceCard '../../networkInterfaceCard/networkInterfa
 }
 
 module modInternalNetorkInterfaceCard '../../networkInterfaceCard/networkInterfaceCardNoPIP.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'networkInterfaceCardNoPublicIP'
   params: {
     parLandingZoneEnv: 'Connectivity'
@@ -339,7 +339,7 @@ module modInternalNetorkInterfaceCard '../../networkInterfaceCard/networkInterfa
 }
 
 module modFortigateVirtualAppliance '../../hubAndSpoke/fortigate/fortigateVirtualMachine.bicep' = {
-  scope: resourceGroup(parPlatConnectivitySubcriptionId, parHubResourceGroupName)
+  scope: resourceGroup(parPlatConnectivitySubscriptionId, parHubResourceGroupName)
   name: 'fortigateVirtualAppliance'
   params: {
     adminPassword: adminPassword

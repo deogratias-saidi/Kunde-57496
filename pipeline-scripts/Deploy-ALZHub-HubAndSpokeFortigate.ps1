@@ -1,7 +1,7 @@
 param (
   [string]$companyPrefix,
-  [string]$platConnectivitySubcriptionId,
-  [string]$LandingZoneCorpSubcriptionId,
+  [string]$platConnectivitySubscriptionId,
+  [string]$LandingZoneCorpSubscriptionId,
   [string]$location,
   [string]$adminUsername,
   [string]$adminPassword,
@@ -12,8 +12,8 @@ param (
 # Parameters for deployment
 $parameters = @{
   parCompanyPrefix                 = $companyPrefix
-  parPlatConnectivitySubcriptionId = $platConnectivitySubcriptionId
-  parLandingZoneCorpSubcriptionId  = $LandingZoneCorpSubcriptionId
+  parPlatConnectivitySubcriptionId = $platConnectivitySubscriptionId
+  parLandingZoneCorpSubscriptionId = $LandingZoneCorpSubscriptionId
   parLocation                      = $location
   adminUsername                    = $adminUsername
   adminPassword                    = $adminPassword
@@ -21,11 +21,14 @@ $parameters = @{
 
 if ($location -eq "norwayeast") {
   $resourceLocationSuffix = "noe"
-} elseif ($location -eq "westeurope") {
+}
+elseif ($location -eq "westeurope") {
   $resourceLocationSuffix = "weu"
-} elseif ($location -eq "northeurope") {
+}
+elseif ($location -eq "northeurope") {
   $resourceLocationSuffix = "neu"
-} else {
+}
+else {
   throw "Unsupported location: $location. Only norwayeast, westeurope, and northeurope are allowed."
 }
 
@@ -45,9 +48,10 @@ try {
 
   # Check if the FortiGate VM or Azure Firewall exists
   if ($hubNva) {
-      throw "An Azure Firewall azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
-  } else {
-      Write-Output "No Azure Firewall found in rg-$companyPrefix-ecms-$resourceLocationSuffix-hub. Proceeding with the deployment..."
+    throw "An Azure Firewall azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
+  }
+  else {
+    Write-Output "No Azure Firewall found in rg-$companyPrefix-ecms-$resourceLocationSuffix-hub. Proceeding with the deployment..."
   }
 }
 catch {

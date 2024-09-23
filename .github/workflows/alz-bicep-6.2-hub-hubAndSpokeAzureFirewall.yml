@@ -48,8 +48,8 @@ jobs:
         inlineScript: |
           ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeAzureFirewall.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+            -platConnectivitySubscriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubscriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
             -location "${{ secrets.LOCATION }}" `
             -WhatIf
         azPSVersion: "latest"
@@ -86,7 +86,7 @@ jobs:
         inlineScript: |
           ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeAzureFirewall.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+            -platConnectivitySubscriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubscriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
             -location "${{ secrets.LOCATION }}"
         azPSVersion: "latest"

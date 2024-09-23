@@ -1,7 +1,7 @@
 param (
   [string]$companyPrefix,
-  [string]$platConnectivitySubcriptionId,
-  [string]$LandingZoneCorpSubcriptionId,
+  [string]$platConnectivitySubscriptionId,
+  [string]$LandingZoneCorpSubscriptionId,
   [string]$location,
   [switch]$WhatIf
 )
@@ -10,8 +10,8 @@ param (
 # Parameters for deployment
 $parameters = @{
   parCompanyPrefix                 = $companyPrefix
-  parPlatConnectivitySubcriptionId = $platConnectivitySubcriptionId
-  parLandingZoneCorpSubcriptionId  = $LandingZoneCorpSubcriptionId
+  parPlatConnectivitySubcriptionId = $platConnectivitySubscriptionId
+  parLandingZoneCorpSubscriptionId = $LandingZoneCorpSubscriptionId
   parLocation                      = $location
 }
 

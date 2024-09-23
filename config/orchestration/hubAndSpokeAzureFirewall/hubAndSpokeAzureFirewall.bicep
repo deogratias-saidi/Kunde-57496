@@ -1,7 +1,7 @@
 targetScope = 'managementGroup'
 
 param parCompanyPrefix string
-param parPlatConnectivitySubcriptionId string
+param parPlatConnectivitySubscriptionId string
 param parLandingZoneCorpSubscriptionId string
 param parLocation string 
 param parAzFirewallTier string = 'Standard'
@@ -17,7 +17,7 @@ module modAzureFirewall '../azureFirewall/azureFirewall.main.bicep' = {
     parAzFirewallEnabled: true
     parAzFirewallPoliciesEnabled: true
     parCompanyPrefix: parCompanyPrefix
-    parConnectivitySubscriptionId: parPlatConnectivitySubcriptionId
+    parConnectivitySubscriptionId: parPlatConnectivitySubscriptionId
     parLandingZoneCorpSubscriptionId: parLandingZoneCorpSubscriptionId
     parDdosEnabled: false
     parLocation: parLocation

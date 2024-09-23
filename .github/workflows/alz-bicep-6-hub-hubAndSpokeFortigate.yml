@@ -55,8 +55,8 @@ jobs:
         inlineScript: |
           ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+            -platConnectivitySubscriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubscriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
             -adminUsername "${{ secrets.ADMIN_USERNAME }}" `
             -adminPassword "${{ secrets.ADMIN_PASSWORD }}" `
             -location "${{ secrets.LOCATION }}" `
@@ -95,8 +95,8 @@ jobs:
         inlineScript: |
           ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
-            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+            -platConnectivitySubscriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubscriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
             -adminUsername "${{ secrets.ADMIN_USERNAME }}" `
             -adminPassword "${{ secrets.ADMIN_PASSWORD }}" `
             -location "${{ secrets.LOCATION }}"

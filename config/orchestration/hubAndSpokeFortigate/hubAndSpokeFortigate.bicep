@@ -1,8 +1,8 @@
 targetScope = 'managementGroup'
 
 param parCompanyPrefix string
-param parLandingZoneCorpSubcriptionId string
-param parPlatConnectivitySubcriptionId string
+param parLandingZoneCorpSubscriptionId string
+param parPlatConnectivitySubscriptionId string
 
 @secure()
 param adminPassword string
@@ -17,8 +17,8 @@ module modFortigateHubAndSpoke '../../custom-modules/network/hubAndSpoke/fortiga
     adminPassword:adminPassword
     adminUsername:adminUsername
     parCompanyPrefix: parCompanyPrefix
-    parPlatConnectivitySubcriptionId:parPlatConnectivitySubcriptionId
-    parLandingZoneCorpSubcriptionId:parLandingZoneCorpSubcriptionId
+    parPlatConnectivitySubscriptionId:parPlatConnectivitySubscriptionId
+    parLandingZoneCorpSubscriptionId:parLandingZoneCorpSubscriptionId
     parLocation:parLocation
   }
 } 

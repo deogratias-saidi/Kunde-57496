@@ -3,8 +3,8 @@ targetScope = 'managementGroup'
 param parCompanyPrefix string
 param parDeployHubAndSpokeFortigate bool
 param parDeployHubAndSpokeAzureFirewall bool
-param parPlatConnectivitySubcriptionId string
-param parLandingZoneCorpSubcriptionId string
+param parPlatConnectivitySubscriptionId string
+param parLandingZoneCorpSubscriptionId string
 param parPlatManagementSubcriptionId string
 
 @secure()
@@ -30,8 +30,8 @@ module modFortigateHubAndSpoke '../hubAndSpokeFortigate/hubAndSpokeFortigate.bic
     adminUsername: adminUsername
     parCompanyPrefix: parCompanyPrefix
     parLocation: parLocation
-    parPlatConnectivitySubcriptionId: parPlatConnectivitySubcriptionId
-    parLandingZoneCorpSubcriptionId: parLandingZoneCorpSubcriptionId
+    parPlatConnectivitySubscriptionId: parPlatConnectivitySubscriptionId
+    parLandingZoneCorpSubscriptionId: parLandingZoneCorpSubscriptionId
   }  
 }
 
@@ -41,7 +41,8 @@ module modAzureFirewall '../hubAndSpokeAzureFirewall/hubAndSpokeAzureFirewall.bi
   name: 'azureFirewall'
   params: {
     parCompanyPrefix: parCompanyPrefix
-    parPlatConnectivitySubcriptionId: parPlatConnectivitySubcriptionId
-    parLandingZoneCorpSubscriptionId: parLandingZoneCorpSubcriptionId
+    parPlatConnectivitySubscriptionId: parPlatConnectivitySubscriptionId
+    parLandingZoneCorpSubscriptionId: parLandingZoneCorpSubscriptionId
+    parLocation: parCompanyPrefix
   }
 }
