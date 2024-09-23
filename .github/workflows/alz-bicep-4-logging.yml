@@ -42,9 +42,9 @@ jobs:
       with:
         inlineScript: |
           ./pipeline-scripts\Deploy-ALZLogging.ps1 `
-            -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -parLocation "${{ secrets.LOCATION }}" `
-            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}" `
+            -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
             -WhatIf
         azPSVersion: "latest"
 
@@ -79,7 +79,7 @@ jobs:
       with:
         inlineScript: |
           ./pipeline-scripts\Deploy-ALZLogging.ps1 `
-            -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -parLocation "${{ secrets.LOCATION }}" `
-            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -location "${{ secrets.LOCATION }}" `
+            -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
         azPSVersion: "latest"

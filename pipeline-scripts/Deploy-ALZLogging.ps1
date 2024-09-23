@@ -1,15 +1,15 @@
 param (
-    [string]$parCompanyPrefix,
-    [string]$parPlatManagementSubcriptionId,
-    [string]$parLocation,
+    [string]$companyPrefix,
+    [string]$platManagementSubcriptionId,
+    [string]$location,
     [switch]$WhatIf
 )
 
 # Parameters for deployment
 $parameters = @{
-    parCompanyPrefix               = $parCompanyPrefix
-    parPlatManagementSubcriptionId = $parPlatManagementSubcriptionId
-    parLocation                    = $parLocation
+    parCompanyPrefix               = $companyPrefix
+    parPlatManagementSubcriptionId = $platManagementSubcriptionId
+    parLocation                    = $location
 }
 
 
