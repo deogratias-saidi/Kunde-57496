@@ -44,7 +44,7 @@ $parameters = @{
     parUserAssignedManagedIdentityResourceName = "alz-$companyPrefix-logging-mi"
     parLogAnalyticsWorkspaceName = "alz-$companyPrefix-log-analytics"
     parLogAnalyticsWorkspaceResourceGroupName = $logAnalyticsWorkspaceResourceGroupName
-    parPlatManagementSubcriptionId = $parPlatManagementSubcriptionId
+    parLogAnalyticsWorkspaceSubscription = $parPlatManagementSubcriptionId
     parAutomationAccountName = "alz-$companyPrefix-automation-account"
     parMsDefenderForCloudEmailSecurityContact = "deogratias.saidi@ecit.no"
 }
