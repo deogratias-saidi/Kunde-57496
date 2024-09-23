@@ -33,18 +33,18 @@ if (-not (Test-Path ".\config\orchestration\hubAndSpokeAzureFirewall\hubAndSpoke
 }
 
 # Check if a firewall already exists
-$hubNva = Get-AzResource -ResourceGroupName "rg-$companyPrefix-$resourceLocationSuffix-hub" -ResourceName "FGT-$companyPrefix-$resourceLocationSuffix-HUB-NVA" -ResourceType "Microsoft.Compute/virtualMachines"
+$hubNva = Get-AzResource -ResourceGroupName "rg-$companyPrefix-ecms-$resourceLocationSuffix-conn" -ResourceName "fgt-$companyPrefix-$resourceLocationSuffix-hub-nva" -ResourceType "Microsoft.Compute/virtualMachines"
 
 try {
   # Check if the resource group exists
-  Get-AzResourceGroup -Name "rg-$companyPrefix-$resourceLocationSuffix-hub" -ErrorAction Stop
-  Write-Output "Resource group rg-$companyPrefix-$resourceLocationSuffix-hub found. Checking for existing firewall..."
+  Get-AzResourceGroup -Name "rg-$companyPrefix-ecms-$resourceLocationSuffix-conn" -ErrorAction Stop
+  Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn found. Checking for existing firewall..."
 
   # Check if the FortiGate VM or Azure Firewall exists
   if ($hubNva) {
-      throw "An Azure Firewall azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall solution can be deployed. Deployment canceled."
+      throw "An Azure Firewall azfw-$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Only one firewall solution can be deployed. Deployment canceled."
   } else {
-      Write-Output "No Azure Firewall found in rg-$companyPrefix-$resourceLocationSuffix-hub. Proceeding with the deployment..."
+      Write-Output "No Azure Firewall found in rg-$companyPrefix-ecms-$resourceLocationSuffix-conn. Proceeding with the deployment..."
   }
 }
 catch {
