@@ -1,4 +1,4 @@
-name: Loggin and Monitoring Deployment
+name: Logging and Monitoring Solution
 
 on:
   workflow_dispatch:

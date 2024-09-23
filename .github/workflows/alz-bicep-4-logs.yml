@@ -1,4 +1,4 @@
-name: Deploy Logs Solution PowerShell
+name: Logs Solution PowerShell
 
 on:
   workflow_dispatch:  # This makes the workflow trigger manually

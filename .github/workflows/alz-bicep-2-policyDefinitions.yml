@@ -1,4 +1,4 @@
-name: Deploy Policy Definitions
+name: Policy Definitions
 
 on:
   workflow_dispatch:  # This makes the workflow trigger manually

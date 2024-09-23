@@ -1,4 +1,4 @@
-name: 'Bicep WhatIf / Deploy'
+name: Fortigate
 
 on:
   workflow_dispatch:

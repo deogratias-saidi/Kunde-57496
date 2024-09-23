@@ -1,4 +1,4 @@
-name: Policy Assignments
+name: Policy Assignments 2
 
 on:
   workflow_dispatch: 

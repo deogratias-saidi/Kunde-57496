@@ -1,4 +1,4 @@
-name: Azure Firewall Hub and Spoke Deployment
+name: Azure Firewall Hub and Spoke
 
 on:
   workflow_dispatch:
