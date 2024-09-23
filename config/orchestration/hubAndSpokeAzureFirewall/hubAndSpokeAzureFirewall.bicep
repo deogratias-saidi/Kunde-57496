@@ -7,7 +7,7 @@ param parLocation string
 param parAzFirewallTier string = 'Standard'
 
 
-module modAzureFirewall '../azurefirewall/azureFirewall.main.bicep' = {
+module modAzureFirewall '../azureFirewall/azureFirewall.main.bicep' = {
   scope: managementGroup('alz-${parCompanyPrefix}-platform-connectivity')
   name: 'azureFirewall'
   params: {
