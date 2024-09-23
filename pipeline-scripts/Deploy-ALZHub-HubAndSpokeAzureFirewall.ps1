@@ -10,7 +10,7 @@ param (
 # Parameters for deployment
 $parameters = @{
   parCompanyPrefix                 = $companyPrefix
-  parPlatConnectivitySubcriptionId = $platConnectivitySubscriptionId
+  parPlatConnectivitySubscriptionId = $platConnectivitySubscriptionId
   parLandingZoneCorpSubscriptionId = $LandingZoneCorpSubscriptionId
   parLocation                      = $location
 }
@@ -48,10 +48,14 @@ try {
   }
 }
 catch {
-  # Handle the case where the resource group is not found
-  Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn not found. Proceeding with the deployment..."
+  # Handle the specific case where the resource group is not found
+  if ($_.Exception.Message -like "*could not be found*") {
+      Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-conn not found. Proceeding with the deployment..."
+  } else {
+      # If it's some other error, re-throw the exception for debugging
+      throw $_
+  }
 }
-
 
 # Run WhatIf if the switch is passed
 if ($WhatIf) {
