@@ -26,7 +26,7 @@ jobs:
       with:
         inlineScript: |
           $platformManagementGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-management"
-          $LoggingMonitoringResourceGroup = "alz-${{ secrets.COMPANY_PREFIX }}-ecms-noe-logging"
+          $LoggingMonitoringResourceGroup = "rg-${{ secrets.COMPANY_PREFIX }}-ecms-noe-logging"
 
           $LoggingMonitoringResourceGroupExists = Get-AzResourceGroup -Name $LoggingMonitoringResourceGroup -ErrorAction SilentlyContinue
           
@@ -86,6 +86,6 @@ jobs:
       with:
         inlineScript: |
           -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-            -location "${{ secrets.LOCATION }}" `
-            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+          -location "${{ secrets.LOCATION }}" `
+          -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
         azPSVersion: "latest"
