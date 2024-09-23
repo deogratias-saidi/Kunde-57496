@@ -61,7 +61,7 @@ jobs:
         creds: ${{secrets.AZURE_CREDENTIALS}}
         enable-AzPSSession: true
 
-    # Run PowerShell script for actual Management Groups deployment
+    
     - name: Run Management Groups Deployment
       uses: azure/powershell@v1
       with:
