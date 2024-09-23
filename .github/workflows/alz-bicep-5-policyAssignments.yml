@@ -26,9 +26,6 @@ jobs:
       with:
         inlineScript: |
           $platformManagementGroup = "alz-${{ secrets.COMPANY_PREFIX }}-platform-management"
-          $LoggingMonitoringResourceGroup = "rg-${{ secrets.COMPANY_PREFIX }}-ecms-noe-logging"
-
-          $LoggingMonitoringResourceGroupExists = Get-AzResourceGroup -Name $LoggingMonitoringResourceGroup -ErrorAction SilentlyContinue
           
           $platformManagementGroupExists = Get-AzManagementGroup -GroupName $platformManagementGroup -ErrorAction SilentlyContinue
           
@@ -36,9 +33,6 @@ jobs:
             throw "Management group '$platformManagementGroup' does not exist"
           }
 
-          if (-not $LoggingMonitoringResourceGroupExists) {
-            throw "Resource group '$LoggingMonitoringResourceGroup' does not exist"
-          }
           
          
         azPSVersion: "latest"
