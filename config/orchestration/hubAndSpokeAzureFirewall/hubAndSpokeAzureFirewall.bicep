@@ -3,7 +3,7 @@ targetScope = 'managementGroup'
 param parCompanyPrefix string
 param parPlatConnectivitySubcriptionId string
 param parLandingZoneCorpSubscriptionId string
-param parLocation string = 'norwayeast'
+param parLocation string 
 param parAzFirewallTier string = 'Standard'
 
 

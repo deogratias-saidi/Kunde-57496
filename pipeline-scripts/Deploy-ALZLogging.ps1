@@ -39,4 +39,3 @@ else {
         -TemplateFile ".\config\orchestration\logging\logging.main.bicep" `
         -TemplateParameterObject $parameters
 }
-

@@ -1,0 +1,99 @@
+name: Azure Firewall Hub and Spoke Deployment
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  bicep-whatif:
+    name: 'Bicep WhatIf'
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true 
+
+    - name: Check if Connectivity and Corp Management groups exist
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $platformConnectivityGroup = "fg-${{ secrets.COMPANY_PREFIX }}-platform-connectivity"
+          $landingZoneCorpGroup = "alz-${{ secrets.COMPANY_PREFIX }}-landingzones-corp"
+          
+          $platformGroupExists = Get-AzManagementGroup -GroupName $platformConnectivityGroup -ErrorAction SilentlyContinue
+          $corpGroupExists = Get-AzManagementGroup -GroupName $landingZoneCorpGroup -ErrorAction SilentlyContinue
+          
+          if (-not $platformGroupExists) {
+            throw "Management group '$platformConnectivityGroup' does not exist"
+          }
+          
+          if (-not $corpGroupExists) {
+            throw "Management group '$landingZoneCorpGroup' does not exist"
+          }
+        azPSVersion: "latest"
+
+    # Accept Fortigate EULA
+    - name: Accept Fortigate EULA
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          Get-AzMarketplaceTerms -Publisher "fortinet" -Product "fortinet_fortigate-vm_v5" -Name "fortinet_fg-vm" | Set-AzMarketplaceTerms -Accept
+        azPSVersion: "latest"
+
+    # Run WhatIf PowerShell script
+    - name: Run WhatIf for Hub and Spoke Fortigate
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeAzureFirewall.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+            -location "${{ secrets.LOCATION }}" `
+            -WhatIf
+        azPSVersion: "latest"
+
+    # Capture WhatIf output (optional)
+    - name: Capture WhatIf Output
+      id: whatif-output
+      run: |
+        echo "WhatIf complete"
+
+  bicep-deploy:
+    name: 'Bicep Deploy'
+    environment: prod
+    needs: [bicep-whatif]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only runs on main branch
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        enable-AzPSSession: true
+
+    # Run PowerShell script for actual deployment
+    - name: Run Fortigate Hub and Spoke Deployment
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeAzureFirewall.ps1 `
+            -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+            -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
+            -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
+            -location "${{ secrets.LOCATION }}"
+        azPSVersion: "latest"

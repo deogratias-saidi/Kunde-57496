@@ -53,7 +53,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          ./pipeline-scripts/Deploy-ALZHubAndSpokeFortigate.ps1 `
+          ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
             -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
@@ -93,7 +93,7 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          ./pipeline-scripts/Deploy-ALZHubAndSpokeFortigate.ps1 `
+          ./pipeline-scripts/Deploy-ALZHub-HubAndSpokeFortigate.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -platConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
             -LandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `

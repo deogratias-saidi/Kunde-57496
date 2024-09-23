@@ -19,9 +19,26 @@ $parameters = @{
   adminPassword                    = $adminPassword
 }
 
+if ($location -eq "norwayeast") {
+  $resourceLocationSuffix = "noe"
+} elseif ($location -eq "westeurope") {
+  $resourceLocationSuffix = "weu"
+} elseif ($location -eq "northeurope") {
+  $resourceLocationSuffix = "neu"
+} else {
+  throw "Unsupported location: $location. Only norwayeast, westeurope, and northeurope are allowed."
+}
+
 # Ensure Bicep template exists
 if (-not (Test-Path ".\config\orchestration\hubAndSpokeFortigate\hubAndSpokeFortigate.bicep")) {
   throw "Bicep template file not found at the specified path."
+}
+
+# Check if a firewall already exists
+$hubNva = Get-AzResource -ResourceGroupName "rg-$companyPrefix-$resourceLocationSuffix-hub" -ResourceName "AZFW-$companyPrefix-$resourceLocationSuffix-hub" -ResourceType "Microsoft.Network/azureFirewalls"
+
+if ($hubNva) {
+  throw "An Azure Firewall azfw$companyPrefix-$resourceLocationSuffix-hub already exists in rg-$companyPrefix-$resourceLocationSuffix-hub. Only one firewall solution can be deployed. Deployment canceled."
 }
 
 # Run WhatIf if the switch is passed
