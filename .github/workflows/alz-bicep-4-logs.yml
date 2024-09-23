@@ -37,9 +37,9 @@ jobs:
       id: whatif
       run: |
         $parametersFile = @{
-            parLocation = ${{ secrets.LOCATION }}
-            parCompanyPrefix = ${{ secrets.COMPANY_PREFIX }}
-            parPlatManagementSubcriptionId = ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+            parLocation = "${{ secrets.LOCATION }}"
+            parCompanyPrefix = "${{ secrets.COMPANY_PREFIX }}"
+            parPlatManagementSubcriptionId = "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
         }
 
         try {
@@ -62,9 +62,9 @@ jobs:
       if: ${{ success() }}  # Only run if the WhatIf step succeeded
       run: |
         $parametersFile = @{
-            parLocation = ${{ secrets.LOCATION }}
-            parCompanyPrefix = ${{ secrets.COMPANY_PREFIX }}
-            parPlatManagementSubcriptionId = ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+            parLocation = "${{ secrets.LOCATION }}"
+            parCompanyPrefix = "${{ secrets.COMPANY_PREFIX }}"
+            parPlatManagementSubcriptionId = "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}"
         }
 
         # Run the actual deployment
