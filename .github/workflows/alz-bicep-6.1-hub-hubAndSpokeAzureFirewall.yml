@@ -1,4 +1,4 @@
-name: Azure Firewall Hub and Spoke
+name: 6.1 Azure Firewall Hub and Spoke
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Subscription Placement
+name: 3 Subscription Placement
 
 on:
   workflow_dispatch: 

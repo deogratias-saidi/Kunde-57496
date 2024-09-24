@@ -1,4 +1,4 @@
-name: Management Groups Deployment
+name: 1 Management Groups Deployment
 
 on:
   workflow_dispatch: # Allows the workflow to be triggered manually

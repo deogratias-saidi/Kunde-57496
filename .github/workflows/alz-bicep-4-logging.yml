@@ -1,4 +1,4 @@
-name: Logging and Monitoring Solution
+name: 4 Logging and Monitoring Solution
 
 on:
   workflow_dispatch:

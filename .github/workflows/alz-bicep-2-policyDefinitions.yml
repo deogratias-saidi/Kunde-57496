@@ -1,8 +1,8 @@
-name: Custom Policy Definitions
+name: 2 Custom Policy Definitions
 
 on:
     workflow_run:
-        workflows: ["Management Groups Deployment"]
+        workflows: ["1 Management Groups Deployment"]
         types:
             - completed
 

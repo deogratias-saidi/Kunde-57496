@@ -1,4 +1,4 @@
-name: Fortigate Hub and Spoke
+name: 6 Fortigate Hub and Spoke
 
 on:
   workflow_dispatch:
