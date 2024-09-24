@@ -2,7 +2,7 @@ param (
     [string]$companyPrefix,
     [string]$parPlatManagementSubcriptionId,
     [string]$location,
-    [switch]$whatIf
+    [switch]$WhatIf
 )
 
 # Determine the correct resource group suffix based on the location
