@@ -45,7 +45,7 @@ jobs:
           ./pipeline-scripts/Deploy-ALZPolicyAssignments.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -location "${{ secrets.LOCATION }}" `
-            -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+            -parPlatManagementSubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
             -WhatIf
         azPSVersion: "latest"
 
@@ -82,5 +82,5 @@ jobs:
           ./pipeline-scripts/Deploy-ALZPolicyAssignments.ps1 `
           -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
           -location "${{ secrets.LOCATION }}" `
-          -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+          -parPlatManagementSubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
         azPSVersion: "latest"

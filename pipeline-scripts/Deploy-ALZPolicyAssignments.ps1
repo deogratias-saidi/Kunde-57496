@@ -16,6 +16,25 @@ if ($location -eq "norwayeast") {
     throw "Unsupported location: $location. Only norwayeast, westeurope, and northeurope are allowed."
 }
 
+try {
+  # Check if the resource group exists, but use -ErrorAction SilentlyContinue to prevent a thrown exception
+  $resourceGroup = Get-AzResourceGroup -Name "rg-$companyPrefix-ecms-$resourceLocationSuffix-logging" -ErrorAction SilentlyContinue
+  
+  if ($resourceGroup) {
+      Write-Output "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-logging found. Proceeding with the deployment..."
+  } else {
+      # If the resource group is not found, stop the deployment
+      throw "Resource group rg-$companyPrefix-ecms-$resourceLocationSuffix-logging not found. Deployment canceled."
+  }
+}
+catch {
+  # Re-throw any other unexpected errors for proper debugging
+  throw $_
+}
+
+
+
+
 # Set resource group names dynamically based on the location
 $logAnalyticsWorkspaceResourceGroupName = "rg-$companyPrefix-ecms-$resourceLocationSuffix-logging"
 $logAnalyticsWorkspaceResourceId = "/subscriptions/$parPlatManagementSubcriptionId/resourcegroups/$logAnalyticsWorkspaceResourceGroupName/providers/microsoft.operationalinsights/workspaces/alz-$companyPrefix-log-analytics"
