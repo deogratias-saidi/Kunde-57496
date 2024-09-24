@@ -72,7 +72,7 @@ if (-not (Test-Path "./config/custom-modules/policy/assignments/alzDefaults/alzD
     throw "Bicep template file not found at the specified path."
 }
 
-if($whatIf){
+if($WhatIf){
 
     # WhatIf deployment
 
