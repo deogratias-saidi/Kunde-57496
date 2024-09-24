@@ -83,7 +83,7 @@ if($WhatIf){
     -DeploymentName ("alz-LoggingDeployment-{0}" -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ')) `
     -Location $location `
     -TemplateFile ".\config\custom-modules\policy\assignments\alzDefaults\alzDefaultPolicyAssignments.bicep" `
-    -TemplateParameterObject $parameters
+    -TemplateParameterObject $parameters `
     -WhatIf
 }else {
     
