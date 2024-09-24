@@ -12,7 +12,7 @@ param (
 # Parameters for deployment
 $parameters = @{
   parCompanyPrefix                 = $companyPrefix
-  parPlatConnectivitySubcriptionId = $platConnectivitySubscriptionId
+  parPlatConnectivitySubscriptionId = $platConnectivitySubscriptionId
   parLandingZoneCorpSubscriptionId = $LandingZoneCorpSubscriptionId
   parLocation                      = $location
   adminUsername                    = $adminUsername
