@@ -57,15 +57,6 @@ catch {
   throw $_
 }
 
-# Continue with the deployment logic here
-Write-Output "Running the deployment process..."
-
-
-# Continue with the deployment logic here if resource group is found or not
-Write-Output "Running the deployment process..."
-
-
-
 # Run WhatIf if the switch is passed
 if ($WhatIf) {
   Write-Output "Running WhatIf for the deployment..."
