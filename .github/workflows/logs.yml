@@ -43,8 +43,8 @@ jobs:
         with:
           inlineScript: |
             $WhatIfOutput = ./pipeline-scripts/Deploy-ALZLogging.ps1 `
-              -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+              -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}" `
               -WhatIf
             echo "$WhatIfOutput" > whatif_subscription_placement.txt
@@ -83,7 +83,7 @@ jobs:
         with:
           inlineScript: |
             ./pipeline-scripts/Deploy-ALZLogging.ps1 `
-              -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
-              -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
+              -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}"
           azPSVersion: "latest"
