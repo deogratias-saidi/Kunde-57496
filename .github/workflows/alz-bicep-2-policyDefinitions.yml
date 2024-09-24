@@ -1,73 +1,84 @@
-name: Policy Definitions
+name: Custom Policy Definitions
 
 on:
-  workflow_dispatch:  # This makes the workflow trigger manually
+    workflow_run:
+        workflows: ["Management Groups Deployment"]
+        types:
+            - completed
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    bicep-whatif-for-policy-definitions:
+        name: 'Bicep WhatIf for Policy Definitions'
+        runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-    - name: Login to Azure using Azure CLI with Service Principal
-      run: |
-        az login --service-principal \
-          -u ${{ secrets.AZURE_CLIENT_ID }} \
-          -p ${{ secrets.AZURE_SECRET_ID }} \
-          --tenant ${{ secrets.AZURE_TENANT_ID }}
-        az account set --subscription ${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}
+            - name: 'Az CLI login'
+              uses: azure/login@v1
+              with:
+                  creds: ${{secrets.AZURE_CREDENTIALS}}
+                  enable-AzPSSession: true
+                  
+            - name: Check if Root Management groups exist
+              id: whatif-check-management-groups
+              uses: azure/powershell@v1
+              with:
+                inlineScript: |
+                    $parTargetManagementGroupId = "alz"
+                    
+                    $targetManagementGroupExists = Get-AzManagementGroup -GroupName $parTargetManagementGroupId -ErrorAction SilentlyContinue
+                    
+                    if (-not $targetManagementGroupExists) {
+                        throw "Management group '$parTargetManagementGroupId' does not exist"
+                    }
+                azPSVersion: 'latest'
 
-    - name: Install Az PowerShell Module
-      run: |
-        Install-Module -Name Az -AllowClobber -Force -Scope CurrentUser
-      shell: pwsh
+            - name: Run WhatIf for Policy Definitions Deployment
+              id: whatif-run-policy-definitions
+              uses: azure/powershell@v1
+              with:
+                inlineScript: |
+                    $WhatIfOutput = ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+                        -companyPrefix "${{secrets.COMPANY_PREFIX}}" `
+                        -location "${{secrets.LOCATION}}" `
+                        -parTargetManagementGroupId "alz" `
+                        -WhatIf
+                    echo "$WhatIfOutput" > whatif_policy_definitions.txt
+                azPSVersion: 'latest'
 
-    - name: Log in to Azure using PowerShell (via Azure CLI authentication)
-      run: |
-        $azAccessToken = az account get-access-token --query accessToken --output tsv
-        $azTenantId = az account show --query tenantId --output tsv
-        $azSubscriptionId = az account show --query id --output tsv
-        Connect-AzAccount -AccessToken $azAccessToken -TenantId $azTenantId -AccountId $azSubscriptionId
-        Set-AzContext -SubscriptionId $azSubscriptionId  
-      shell: pwsh
+            - name: Save WhatIf Output to Environment File for Policy Definitions
+              run: echo "WHATIF_POLICY_DEFINITIONS=$(cat whatif_policy_definitions.txt)" >> $GITHUB_ENV
 
-    - name: Run WhatIf to Validate the Deployment
-      id: whatif
-      run: |
-        $parametersFile = @{
-            parTargetManagementGroupId = 'alz'
-        }
+            - name: Publish WhatIf Output for Policy Definitions
+              run: echo "${{env.WHATIF_POLICY_DEFINITIONS}}"
 
-        try {
-          # Run WhatIf
-          New-AzManagementGroupDeployment `
-          -Location 'norwayeast' `
-          -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-          -ManagementGroupId 'alz' `
-          -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
-          -TemplateParameterObject $parametersFile `
-          -WhatIf
-        }
-        catch {
-          Write-Error "WhatIf validation failed. Stopping deployment."
-          exit 1  # Exit with an error code to stop the pipeline if WhatIf fails
-        }
-      shell: pwsh
+    bicep-deploy-policy-definitions:
+        name: 'Bicep Deploy Policy Definitions'
+        environment: prod
+        needs: [bicep-whatif-for-policy-definitions]
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main'
 
-    - name: Proceed with Actual Deployment if WhatIf Passes
-      if: ${{ success() }}  # Only run if the WhatIf step succeeded
-      run: |
-        $parametersFile = @{
-            parTargetManagementGroupId = 'alz'
-        }
 
-        # Run the actual deployment
-        New-AzManagementGroupDeployment `
-        -Location 'norwayeast' `
-        -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-        -ManagementGroupId 'alz' `
-        -TemplateFile ".\config\custom-modules\policy\definitions\customPolicyDefinitions.bicep" `
-        -TemplateParameterObject $parametersFile
-      shell: pwsh
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: 'Az CLI login'
+              uses: azure/login@v1
+              with:
+                  creds: ${{secrets.AZURE_CREDENTIALS}}
+                  enable-AzPSSession: true
+
+            - name: Deploy Policy Definitions
+              uses: azure/powershell@v1
+              with:
+                  inlineScript: |
+                      ./pipeline-scripts/Deploy-ALZCustomPolicyDefinitions.ps1 `
+                          -companyPrefix "${{secrets.COMPANY_PREFIX}}" `
+                          -location "${{secrets.LOCATION}}" `
+                          -parTargetManagementGroupId "alz"
+                  azPSVersion: 'latest'
+              
