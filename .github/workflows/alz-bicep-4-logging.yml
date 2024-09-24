@@ -41,12 +41,17 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          ./pipeline-scripts\Deploy-ALZLogging.ps1 `
+          $WhatIfOutput = ./pipeline-scripts\Deploy-ALZLogging.ps1 `
             -companyPrefix "${{ secrets.COMPANY_PREFIX }}" `
             -location "${{ secrets.LOCATION }}" `
             -platManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
             -WhatIf
+            echo "$WhatIfOutput" > whatif_logging.txt
         azPSVersion: "latest"
+    
+    # Save WhatIf Output to Environment File for Subscription Placement
+    - name: Save WhatIf Output for Logging
+      run: echo "WHATIF_LOGGING=$(cat whatif_logging.txt)" >> $GITHUB_ENV
 
     # Capture WhatIf output (optional)
     - name: Capture WhatIf Output

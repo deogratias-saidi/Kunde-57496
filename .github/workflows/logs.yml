@@ -1,4 +1,4 @@
-name: Policy Assignments 2
+name: 4.1 Logging and monitoring solution
 
 on:
   workflow_dispatch: 
@@ -47,7 +47,6 @@ jobs:
               -parPlatManagementSubcriptionId "${{ secrets.MANAGEMENT_SUBSCRIPTION_ID }}" `
               -location "${{ secrets.LOCATION }}" `
               -WhatIf
-
             echo "$WhatIfOutput" > whatif_subscription_placement.txt
           azPSVersion: "latest"
 
@@ -79,7 +78,7 @@ jobs:
           enable-AzPSSession: true
 
       # Proceed with actual deployment if WhatIf passes
-      - name: Run Subscription Placement Deployment
+      - name: Run Logging Solution Deployment
         uses: azure/powershell@v1
         with:
           inlineScript: |
