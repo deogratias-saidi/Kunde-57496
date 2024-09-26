@@ -6,6 +6,7 @@ param (
   [string]$parLandingZoneOnlineSubcriptionId,
   [bool]$parDeploySubscriptions = $true,
   [string]$location,
+  [string]$managementGroupId,
   [switch]$WhatIf
 )
 
@@ -24,7 +25,7 @@ if($WhatIf){
   New-AzManagementGroupDeployment `
     -Location $location `
     -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-    -ManagementGroupId 'alz' `
+    -ManagementGroupId $managementGroupId `
     -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
     -TemplateParameterObject $parametersFile `
     -WhatIf
@@ -35,7 +36,7 @@ if($WhatIf){
   New-AzManagementGroupDeployment `
     -Location $location `
     -DeploymentName  (-join ('alz-SubscriptionPlacementDeployment-{0}' -f (Get-Date -Format 'yyyyMMddTHHMMssffffZ'))[0..63]) `
-    -ManagementGroupId 'alz' `
+    -ManagementGroupId $managementGroupId `
     -TemplateFile ".\config\orchestration\subscription\subscriptionPlacement.main.bicep" `
     -TemplateParameterObject $parametersFile
 }

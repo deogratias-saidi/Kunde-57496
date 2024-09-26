@@ -60,6 +60,7 @@ jobs:
           inlineScript: |
             $WhatIfOutput = ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
               -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -managementGroupId "alz" `
               -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
               -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
               -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
@@ -104,6 +105,7 @@ jobs:
           inlineScript: |
             ./pipeline-scripts/Deploy-ALZSubscriptionPlacement.ps1 `
               -parCompanyPrefix "${{ secrets.COMPANY_PREFIX }}" `
+              -managementGroupId "alz" `
               -parLandingZoneOnlineSubcriptionId "${{ secrets.ONLINE_SUBSCRIPTION_ID }}" `
               -parLandingZoneCorpSubcriptionId "${{ secrets.CORP_SUBSCRIPTION_ID }}" `
               -parPlatConnectivitySubcriptionId "${{ secrets.CONNECTIVITY_SUBSCRIPTION_ID }}" `
